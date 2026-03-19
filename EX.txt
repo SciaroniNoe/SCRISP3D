@@ -1,0 +1,20 @@
+git init per inizializzare
+git add .
+git commit -m "Primo setup del progetto SIG"
+git remote add origin https://github.com/tuo-nome-utente/progetto-sig.git
+git branch -M main
+git push -u origin main
+
+
+
+MODIFICHE:
+git add .
+git commit -m "Aggiunta mappa swisstopo e bottone 3D"
+git push
+
+
+Verifier si il des modif --> git status
+
+Premier fois --> git clone
+
+et apres --> git pull
