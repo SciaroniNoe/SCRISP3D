@@ -42,8 +42,11 @@ const myTrace_4_export_test = [
   [2705053.800, 1119930.210]
 ];
 //const url = swisstopoService.getCSVProfileURL(myTrace_4_export_test);
-console.log("Clicca qui per scaricare il CSV:", url);
-window.open(url, '_blank');
+//console.log("Clicca qui per scaricare il CSV:", url);
+//window.open(url, '_blank');
+
+
+
 
 
 // URL per le capacità WMTS di Swisstopo
