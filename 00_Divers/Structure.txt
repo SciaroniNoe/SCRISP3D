@@ -1,0 +1,70 @@
+src/
+├── assets/             # CSS global, images, logos
+├── components/
+│   ├── layout/
+│   │   ├── Sidebar.vue       # Affiche la liste des tracés et les détails
+│   │   └── Navbar.vue        # Navigation simple et logo
+│   ├── map/
+│   │   ├── MapContainer.vue  # Le "Cerveau" : gère le switch entre 2D et 3D
+│   │   ├── MapOpenLayer.vue    # Logique de dessin 2D et fonds de carte (WMTS)
+│   │   └── MapGiro3D.vue     # Rendu 3D du terrain et des tracés
+│   ├── ui/
+│   │   ├── CreateTraceModal.vue # Popup Bootstrap pour nommer le tracé
+│   │   └── MapControls.vue   # Boutons flottants (Switch 2D/3D, couches)
+│   └── analysis/
+│       └── ElevationChart.vue # Graphique du profil altimétrique (Chart.js)
+├── stores/
+│   └── useTraceStore.js      # État global (Pinia) : Tracés, sélection, mode (2D/3D)
+├── services/
+│   ├── swisstopo.js          # Appels API (Elevation Profile, MN95 conversion)
+│   └── geoUtils.js           # Fonctions de calcul (distance, formatage)
+├── App.vue                   # Point d'entrée principal
+└── main.js                   # Configuration Vue + Pinia + Bootstrap
+
+
+###############################################################################################
+
+1. useTraceStore.js --> Le Cerveau
+	- On utilise Pinia pour que tous les composants parlent la même langue
+	- Au lieu de passer des variables de parent à enfant, on stocke tout ici :
+		a) traces : Un tableau d'objets (chaque tracé a un ID, nom, points, dénivelé).
+		b) selectedTraceId : Pour savoir quel tracé afficher dans la sidebar.
+		c) is3DMode : Un booléen pour savoir quelle carte afficher.
+
+2. création d'un tracé :
+	- L'utilisateur clique sur "Créer" dans CreateTraceModal.vue. Le store crée un nouvel objet tracé "vide".
+	- MapOpenLayer.vue écoute les clics. À chaque clic, il ajoute une coordonnée au tracé actif dans le Store.
+	- ElevationChart.vue est "branché" sur le store. Dès que les points changent, il appelle l'API Swisstopo via swisstopo.js et met à jour le graphique en temps réel.
+	Store = Database temporaire avec Pinia
+
+###############################################################################################
+
+Subdivision travail:
+
+A. UI & Logique d'État - Pinia/Sidebar
+	- Mission : Créer la structure Vue et gérer les données.
+	- Fichiers : useTraceStore.js, Sidebar.vue, CreateTraceModal.vue.
+
+B. 2D - OpenLayer
+	- Mission : Afficher la carte, gérer le dessin au clic et les fonds de carte Swisstopo.
+	- Fichiers : MapOpenLayer.vue, swisstopo.js.
+	- Logique : Utiliser L.polyline pour dessiner et L.tileLayer pour les fonds de carte nationaux. Il doit envoyer les points au store à chaque clic.
+
+C. 3D - Giro3D
+	- Mission : Transformer les données 2D en vue 3D impressionnante.
+	- Fichiers : MapGiro3D.vue.
+	- Logique : Récupérer la liste des tracés dans le store. Utiliser le terrain de Swisstopo (MNT) et superposer les lignes des tracés sur le relief.
+		(Note : Giro3D demande une gestion de la mémoire (Canvas). Il faut s'assurer que si is3D est faux, l'instance Giro3D est mise en pause ou supprimée.)
+		
+###############################################################################################
+
+API
+https://docs.geo.admin.ch/explore-data/get-layer-metadata.html
+
+Alti
+$ curl https://api3.geo.admin.ch/rest/services/height?easting=2600000&northing=1200000
+
+Profile
+curl -G "https://api3.geo.admin.ch/rest/services/profile.json" --data-urlencode "geom={\"type\":\"LineString\",\"coordinates\":[[2550050,1206550],[2556950,1204150],[2561050,1207950]]}"
+
+curl -G "https://api3.geo.admin.ch/rest/services/profile.csv" --data-urlencode "geom={\"type\":\"LineString\",\"coordinates\":[[2550050,1206550],[2556950,1204150],[2561050,1207950]]}"
