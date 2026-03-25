@@ -1,44 +1,39 @@
-# scrisp3d
+# SCRISP3D
 
-This template should help get you started developing with Vue 3 in Vite.
+SCRISP3D est une application web de Système d'Information Géographique (SIG) interactive développée dans le cadre du Master MDT. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données topographiques officielles de swisstopo.
 
-## Recommended IDE Setup
+## Fonctionnalités
+- Cartographie 2D/3D : Visualisation haute performance avec OpenLayers et intégration prévue pour le 3D (Cesium/SwissTerrain).
+- Gestion des Tracés : Interface intuitive pour lister, sélectionner et analyser des itinéraires.
+- Données Officielles : Intégration complète des services WMTS de swisstopo (Système de coordonnées MN95).
+- Interface Responsive : Sidebar escamotable (Menu Burger) permettant de maximiser l'espace de travail sur la carte.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Technologies Utilisées
+- Framework : Vue.js 3 (Composition API)
+- Build Tool : Vite
+- Gestion d'État : Pinia (pour la synchronisation globale des données)
+- Cartographie : OpenLayers
+- Styles : CSS3 & Bootstrap 5
 
-## Recommended Browser Setup
+## Installation et Lancement
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### Prérequis
+Assurez-vous d'avoir Node.js (version 18 ou supérieure) installé sur votre machine.
 
-## Customize configuration
+### 1. Préparation du projet
+Entrez dans le dossier du projet :
+```sh
+cd SCRISP3D
+```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
+### 2. Installation des dépendances
+Installez les bibliothèques nécessaires (Vue, Pinia, OpenLayers, Bootstrap) :
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
+### 3. Lancement de l'application
+Démarrez le serveur de développement local :
 ```sh
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
