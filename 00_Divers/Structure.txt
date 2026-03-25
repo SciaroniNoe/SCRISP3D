@@ -1,27 +1,32 @@
-src/
-├── index.html			# HTML principal
 │
-├── App.vue             # Point d'entrée principal (main)
+├──index.html                            # HTML principal
 │
-├── assets/				# CSS global, images, logos
-│   └── styles.css 
-│      	  
-├── components/
-│   ├── layout/
-│   │   ├── SidebarList.vue     # Visualisation de tous les tracés sous forme de liste selectionable
-│   │   └── SidebarInfo.vue     # Visualisation des information du tracé selectionné
-│   ├── map/
-│   │   ├── Map2D.vue           # Logique de dessin 2D et fonds de carte (WMTS)
-│   │   └── Map3D.vue           # Rendu 3D du terrain et des tracés
-│   └── ui/
-│       ├── CreateTraceButton.vue   # Button Bootstrap pour ouvrir le popup
-│       ├── CreateTracePopup.vue    # Popup Bootstrap pour creer le tracé
-│       ├── ControlsMapButton.vue   # Boutons flottants (Switch 2D/3D, couches)
-│       └── InfoBoxEndTrace.vue     # Info en haut à droit pour expliquer pour terminer le tracé
-│
-├── stores/
-│   └── traceStore.js         # État global (Pinia) : Tracés, sélection, mode (2D/3D)
-│
-└── services/
-    ├── swisstopo.js             # Appels API (Elevation Profile, MN95 conversion)
-    └── geoUtils.js              # Fonctions de calcul (distance, formatage)
+└── src/			
+     │
+     ├── App.vue                         # Point d'entrée principal
+	 │                                 
+     ├── main.js                         # Pour créer l'application Vue
+     │                                 
+     ├── assets/				       
+     │   └── styles.css                  # CSS global, images, logos
+     │      	                       
+     ├── components/                   
+     │   ├── layout/                   
+     │   │   ├── SidebarList.vue         # Visualisation de tous les tracés à gauche sous forme de liste selectionable (zone a gauche de la carte)
+     │   │   └── SidebarInfo.vue         # Visualisation des information du tracé selectionné (zone a gauche de la carte)
+     │   ├── map/                      
+     │   │   ├── Map2D.vue               # Logique de dessin 2D et fonds de carte (WMTS) (OpenLayer)
+     │   │   ├── Map3D.vue               # Rendu 3D du terrain et des tracés (Giro3D)
+     │   │   └── MapContainer.vue        # Gère le passage entre 2D et 3D pour éviter d'avoir à le faire dans l'APP.vue
+     │   └── ui/
+     │       ├── CreateTraceButton.vue   # Button Bootstrap pour ouvrir le popup
+     │       ├── CreateTracePopup.vue    # Popup Bootstrap pour creer le tracé (avec inputbox pour le nom, zone pour importer un GPX et bouton en bas pour creer l'objet)
+     │       ├── ControlsMapButton.vue   # Boutons flottants (Switch 2D/3D, couches)
+     │       └── InfoBoxEndTrace.vue     # Infobox en haut à droit pour expliquer comment terminer le tracé
+     │
+     ├── stores/
+     │   └── traceStore.js               # État global (Pinia) : Tracés, sélection, mode (2D/3D)
+     │                                  
+     └── services/                      
+         ├── swisstopo.js                # Appels API (Elevation Profile, MN95 conversion)
+         └── geoUtils.js                 # Fonctions de calcul (distance, formatage)

@@ -13,8 +13,12 @@ git commit -m "Aggiunta mappa swisstopo e bottone 3D"
 git push
 
 
-Verifier si il des modif --> git status
+Verifier si il y a des modif --> git status
 
 Premier fois --> git clone
 
 et apres --> git pull
+
+
+POUR LANCER
+npm run dev
