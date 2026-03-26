@@ -41,7 +41,7 @@ h2 {
 
 .sidebar {
   width: 200px;
-  background-color: #e3f2fd;
+  background-color: #cbe9ff;
   padding: 20px;
   padding-top: 60px;
   height: 100vh;

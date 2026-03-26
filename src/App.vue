@@ -33,8 +33,8 @@ const traceStore = useTraceStore()
 
 .burger-btn {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 20px;
+  left: 20px;
   z-index: 1000;
   background: #1976d2;
   color: white;

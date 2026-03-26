@@ -8,7 +8,7 @@
 .map-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #e8f5e9; /* Verde chiaro */
+  background-color: #bbffc1; /* Verde chiaro */
   display: flex;
   align-items: center;
   justify-content: center;
