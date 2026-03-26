@@ -1,11 +1,11 @@
 <template>
   <div class="app-wrapper">
-    <button class="burger-btn" @click="traceStore.isSidebarOpen = !traceStore.isSidebarOpen">
-      <span v-if="traceStore.isSidebarOpen">✕</span>
+    <button class="burger-btn" @click="store.isSidebarOpen = !store.isSidebarOpen">
+      <span v-if="store.isSidebarOpen">✕</span>
       <span v-else>☰</span>
     </button>
 
-    <SidebarList :class="{ 'is-closed': !traceStore.isSidebarOpen }" />
+    <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" />
 
     <main class="main-content">
       <MapContainer />
@@ -14,11 +14,11 @@
 </template>
 
 <script setup>
-import { useTraceStore } from '@/stores/traceStore'
+import { usestore } from '@/stores/store'
 import SidebarList from './components/layout/SidebarList.vue'
 import MapContainer from './components/map/MapContainer.vue'
 
-const traceStore = useTraceStore()
+const store = usestore()
 </script>
 
 <style scoped>

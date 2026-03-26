@@ -1,11 +1,11 @@
 <template>
   <div class="app-wrapper">
-    <button class="burger-btn" @click="traceStore.isSidebarOpen = !traceStore.isSidebarOpen">
-      <span v-if="traceStore.isSidebarOpen">✕</span>
+    <button class="burger-btn" @click="store.isSidebarOpen = !store.isSidebarOpen">
+      <span v-if="store.isSidebarOpen">✕</span>
       <span v-else>☰</span>
     </button>
 
-    <SidebarList :class="{ 'is-closed': !traceStore.isSidebarOpen }" />
+    <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebar" />
 
     <main class="main-content">
       <MapContainer />
@@ -14,28 +14,52 @@
 </template>
 
 <script setup>
-import { useTraceStore } from '@/stores/traceStore'
+import { usestore } from '@/stores/store'
 import SidebarList from './components/layout/SidebarList.vue'
 import MapContainer from './components/map/MapContainer.vue'
 
-const traceStore = useTraceStore()
+const store = usestore()
 </script>
 
 <style scoped>
 .app-wrapper {
-  display: flex;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   position: relative;
 }
 
+.floating-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 300px;
+  z-index: 499;
+  background: white;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Quando è chiusa, la sidebar scivola fuori dallo schermo a sinistra */
+.floating-sidebar.is-closed {
+  transform: translateX(-100%);
+}
+
+.main-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* La mappa sta sotto tutto */
+}
 
 .burger-btn {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000;
+  z-index: 1000; /* Il livello più alto di tutti */
   background: #1976d2;
   color: white;
   border: none;
@@ -44,11 +68,5 @@ const traceStore = useTraceStore()
   cursor: pointer;
   font-size: 1.2rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.main-content {
-  flex: 1;
-  height: 100%;
-  transition: all 0.3s ease; /* Animazione fluida quando la sidebar si sposta */
 }
 </style>

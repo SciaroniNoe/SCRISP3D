@@ -4,14 +4,14 @@
 
     <div class="trace-container">
       <div 
-        v-for="trace in traceStore.traces" 
+        v-for="trace in store.traces" 
         :key="trace.id" 
         class="trace-item"
       >
         <button 
           class="trace-button" 
-          :class="{ active: traceStore.selectedTraceId === trace.id }"
-          @click="traceStore.selectTrace(trace.id)"
+          :class="{ active: store.selectedTraceId === trace.id }"
+          @click="store.selectTrace(trace.id)"
         >
           {{ trace.name }}
           <small>{{ (trace.length_m / 1000).toFixed(2) }} km</small>
@@ -19,14 +19,14 @@
       </div>
     </div>
 
-    <p v-if="traceStore.traces.length === 0">Aucun tracé disponible.</p>
+    <p v-if="store.traces.length === 0">Aucun tracé disponible.</p>
   </aside>
 </template>
 
 <script setup>
-import { useTraceStore } from '@/stores/traceStore'
+import { usestore } from '@/stores/store'
 
-const traceStore = useTraceStore()
+const store = usestore()
 </script>
 
 <style scoped>

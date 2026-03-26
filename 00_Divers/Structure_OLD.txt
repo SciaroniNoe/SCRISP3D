@@ -14,7 +14,7 @@ src/
 │   └── analysis/
 │       └── ElevationChart.vue # Graphique du profil altimétrique (Chart.js)
 ├── stores/
-│   └── useTraceStore.js      # État global (Pinia) : Tracés, sélection, mode (2D/3D)
+│   └── usestore.js      # État global (Pinia) : Tracés, sélection, mode (2D/3D)
 ├── services/
 │   ├── swisstopo.js          # Appels API (Elevation Profile, MN95 conversion)
 │   └── geoUtils.js           # Fonctions de calcul (distance, formatage)
@@ -24,7 +24,7 @@ src/
 
 ###############################################################################################
 
-1. useTraceStore.js --> Le Cerveau
+1. usestore.js --> Le Cerveau
 	- On utilise Pinia pour que tous les composants parlent la même langue
 	- Au lieu de passer des variables de parent à enfant, on stocke tout ici :
 		a) traces : Un tableau d'objets (chaque tracé a un ID, nom, points, dénivelé).
@@ -43,7 +43,7 @@ Subdivision travail:
 
 A. UI & Logique d'État - Pinia/Sidebar
 	- Mission : Créer la structure Vue et gérer les données.
-	- Fichiers : useTraceStore.js, Sidebar.vue, CreateTraceModal.vue.
+	- Fichiers : usestore.js, Sidebar.vue, CreateTraceModal.vue.
 
 B. 2D - OpenLayer
 	- Mission : Afficher la carte, gérer le dessin au clic et les fonds de carte Swisstopo.
