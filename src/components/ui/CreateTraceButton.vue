@@ -1,54 +1,59 @@
+// CreateTraceButton.vue
+// Popup Bootstrap pour créer un nouveau tracé
+// L'utilisateur doit entrer un nom (obligatoire)
+// Appelle une action du store pour créer un tracé vide
+
+
 <template>
-  <div class="app-wrapper">
-    <button class="burger-btn" @click="store.isSidebarOpen = !store.isSidebarOpen">
-      <span v-if="store.isSidebarOpen">✕</span>
-      <span v-else>☰</span>
+  <div class="button-container">
+    <button class="create-trace-btn" @click="handleCreate">
+      Créer un tracé
     </button>
-
-    <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" />
-
-    <main class="main-content">
-      <MapContainer />
-    </main>
   </div>
 </template>
 
 <script setup>
-import { usestore } from '@/stores/store'
-import SidebarList from './components/layout/SidebarList.vue'
-import MapContainer from './components/map/MapContainer.vue'
+// Vous pouvez émettre un événement pour signaler au parent
+// (comme MapContainer.vue) d'ouvrir la popup CreateTracePopup.vue
+const emit = defineEmits(['trigger-create']);
 
-const store = usestore()
+const handleCreate = () => {
+  console.log("Ouverture du formulaire de tracé...");
+  emit('trigger-create');
+};
 </script>
 
 <style scoped>
-.app-wrapper {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-}
-
-
-.burger-btn {
+.button-container {
+  /* Positionnement en bas à gauche comme sur l'image */
   position: absolute;
-  top: 20px;
+  bottom: 20px;
   left: 20px;
   z-index: 1000;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  /* Transition fluide pour le mouvement */
+  transition: left 0.2s ease-in-out;
 }
 
-.main-content {
-  flex: 1;
-  height: 100%;
-  transition: all 0.3s ease; /* Animazione fluida quando la sidebar si sposta */
+/* Position décalée quand la sidebar est ouverte */
+/* Ajustez '320px' selon la largeur réelle de votre SidebarList.vue */
+.button-container.is-shifted {
+  left: 1000px;
+}
+
+.create-trace-btn {
+  /* Style visuel basé sur le schéma  */
+  background-color: #a0c4ff; /* Bleu clair observé */
+  color: #003366;           /* Texte foncé pour le contraste */
+  border: 1px solid #7094db;
+  border-radius: 20px;      /* Aspect très arrondi (pill button) */
+  padding: 8px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease;
+}
+
+.create-trace-btn:hover {
+  background-color: #8db5f2;
 }
 </style>
