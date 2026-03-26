@@ -5,6 +5,7 @@
       <span v-else>☰</span>
     </button>
 
+    <SidebarInfo :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebarinfo" />
     <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebar" />
 
     <main class="main-content">
@@ -17,6 +18,7 @@
 
 <script setup>
 import { usestore } from '@/stores/store'
+import SidebarInfo from './components/layout/SidebarInfo.vue'
 import SidebarList from './components/layout/SidebarList.vue'
 import MapContainer from './components/map/MapContainer.vue'
 import CreateTraceButton from './components/ui/CreateTraceButton.vue';
@@ -33,6 +35,18 @@ const store = usestore()
   position: relative;
 }
 
+.floating-sidebarinfo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 300px;
+  z-index: 498;
+  background: white;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
 .floating-sidebar {
   position: absolute;
   top: 0;
@@ -47,6 +61,9 @@ const store = usestore()
 
 /* Quando è chiusa, la sidebar scivola fuori dallo schermo a sinistra */
 .floating-sidebar.is-closed {
+  transform: translateX(-100%);
+}
+.floating-sidebarinfo.is-closed {
   transform: translateX(-100%);
 }
 
