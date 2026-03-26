@@ -36,7 +36,7 @@ const store = usestore()
   height: 100%;
   width: 300px;
   z-index: 499;
-  background: white;
+  background: #e3f2fd;
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   transition: transform 0.3s ease-in-out;
 }
