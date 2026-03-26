@@ -6,7 +6,7 @@ export const usestore = defineStore('trace', {
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
-      // Se esistono li carichiamo (convertendoli da testo a oggetto), 
+      // Se esistono li carichiamo (convertendoli da testo a oggetto),
       // altrimenti usiamo l'array con i test
       traces: savedTraces ? JSON.parse(savedTraces) : [
         {
@@ -35,7 +35,10 @@ export const usestore = defineStore('trace', {
 
       selectedTraceId: null,
       is3dMode: false,
-      isSidebarOpen: false
+      isSidebarOpen: false,
+      isCreatePopupOpen: false,
+
+
     }
   },
 

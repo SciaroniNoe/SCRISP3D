@@ -9,6 +9,8 @@
 
     <main class="main-content">
       <MapContainer />
+      <CreateTraceButton @trigger-create="store.isCreatePopupOpen = true" />
+      <CreateTracePopup v-if="store.isCreatePopupOpen" @close="store.isCreatePopupOpen = false" />
     </main>
   </div>
 </template>
@@ -17,6 +19,8 @@
 import { usestore } from '@/stores/store'
 import SidebarList from './components/layout/SidebarList.vue'
 import MapContainer from './components/map/MapContainer.vue'
+import CreateTraceButton from './components/ui/CreateTraceButton.vue';
+import CreateTracePopup from './components/ui/CreateTracePopup.vue';
 
 const store = usestore()
 </script>
