@@ -26,6 +26,8 @@ import CreateTracePopup from './components/ui/CreateTracePopup.vue';
 
 const store = usestore()
 const caca = 0
+//const caca = 'caca'
+
 </script>
 
 <style scoped>
