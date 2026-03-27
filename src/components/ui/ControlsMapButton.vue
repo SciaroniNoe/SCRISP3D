@@ -55,15 +55,15 @@ const isLayerMenuOpen = ref(false)
 }
 
 .layers-window {
-    background-color: #e3f2fdec;
-    border: none;
+    background-color: #e3f2fdd3;
+    border: 1px solid #1565c0;
     border-radius: 22.5px;
     padding-left: 22px;
     padding-top: 22px;
     padding-bottom: 14px;
     margin-right: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    height: 240px;
+    height: auto;
     min-width: 190px;
 }
 
@@ -78,7 +78,7 @@ const isLayerMenuOpen = ref(false)
 
 .layer-divider {
     border: 0;
-    border-top: 0px solid #bbdefb;
+    border-top: none;
     margin: 12px 0;
 }
 
@@ -88,12 +88,11 @@ const isLayerMenuOpen = ref(false)
     gap: 10px;
 }
 
-
 .map-btn {
     width: 45px;
     height: 45px;
     border-radius: 22.5px;
-    border: none;
+    border: 1px solid #1565c0;
     background-color: #e3f2fd;
     color: #1976d2;
     font-weight: bold;

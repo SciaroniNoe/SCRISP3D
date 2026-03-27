@@ -44,12 +44,12 @@ export const usestore = defineStore('trace', {
         { id: 'layerOrtho', label: 'Orthophoto', wmts: 'ch.swisstopo.swissimage', active: false },
         { id: 'layerCN', label: 'Carte Nationale', wmts: 'ch.swisstopo.pixelkarte-farbe', active: true },
         { id: 'layerRelief', label: 'Relief multidirectionnel', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', active: false },
-        { id: 'layerMO', label: 'Mensuration Officielle', wmts: 'ch.swisstopo.pixelkarte-relais.light', active: false }
+        { id: 'layerMO', label: 'Mensuration Officielle', wmts: 'ch.kantone.cadastralwebmap-farbe', active: false }
       ],
 
       extraLayers: [
-        { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo.hangneigung-ueber_30', active: false },
-        { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false }
+        { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo-karto.hangneigung', active: false, opacity: 0.4}, // Theo tu prefer ch.swisstopo.hangneigung-ueber_30?
+        { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false, opacity: 1.0}
       ]
 
     }
