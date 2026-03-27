@@ -1,28 +1,26 @@
 <template>
     <div class="map-controls-wrapper">
         <div v-if="isLayerMenuOpen" class="layers-window">
-            <h6 class="layer-title">Couches Swisstopo</h6>
 
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="layerOrtho">
-                <label class="form-check-label" for="layerOrtho">Orthophoto</label>
+            <h6 class="layer-group-title">Arrière-plan</h6>
+            <div class="form-check form-switch" v-for="layer in store.backgroundLayers" :key="layer.id">
+                <input class="form-check-input" type="radio" name="bgLayer" :id="layer.id" :checked="layer.active"
+                    @change="store.setBackground(layer.id)">
+                <label class="form-check-label" :for="layer.id">{{ layer.label }}</label>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="layerCN" checked>
-                <label class="form-check-label" for="layerCN">Carte Nationale</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="layerPente">
-                <label class="form-check-label" for="layerPente">Pentes (>30°)</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="layerRelief">
-                <label class="form-check-label" for="layerRelief">Relief</label>
+
+            <hr class="layer-divider">
+
+            <h6 class="layer-group-title">Couches Swisstopo</h6>
+            <div class="form-check form-switch" v-for="layer in store.extraLayers" :key="layer.id">
+                <input class="form-check-input" type="checkbox" :id="layer.id" v-model="layer.active">
+                <label class="form-check-label" :for="layer.id">{{ layer.label }}</label>
             </div>
         </div>
 
         <div class="buttons-stack">
-            <button class="map-btn" @click="isLayerMenuOpen = !isLayerMenuOpen" title="Layers">
+            <button class="map-btn" :class="{ 'btn-active': isLayerMenuOpen }"
+                @click="isLayerMenuOpen = !isLayerMenuOpen">
                 <span class="btn-icon">L</span>
             </button>
 
@@ -43,6 +41,7 @@ import { usestore } from '@/stores/store'
 
 const store = usestore()
 const isLayerMenuOpen = ref(false)
+
 </script>
 
 <style scoped>
@@ -56,22 +55,31 @@ const isLayerMenuOpen = ref(false)
 }
 
 .layers-window {
-    background-color: #e3f2fd;
-    border: 1px solid #bbdefb;
+    background-color: #e3f2fdec;
+    border: none;
     border-radius: 22.5px;
-    padding: 15px;
+    padding-left: 22px;
+    padding-top: 22px;
+    padding-bottom: 14px;
     margin-right: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    height: 180px;
-    min-width: 180px;
+    height: 240px;
+    min-width: 190px;
 }
 
-.layer-title {
-    margin-bottom: 12px;
-    margin-top: 0px;
-    font-size: 0.9rem;
-    font-weight: bold;
+.layer-group-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
     color: #1565c0;
+    margin: 0px 0 8px 0;
+}
+
+.layer-divider {
+    border: 0;
+    border-top: 0px solid #bbdefb;
+    margin: 12px 0;
 }
 
 .buttons-stack {
@@ -112,5 +120,14 @@ const isLayerMenuOpen = ref(false)
     margin-bottom: 8px;
     font-size: 0.85rem;
     color: #333;
+}
+
+.btn-active {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+.form-check-input {
+    cursor: pointer;
 }
 </style>

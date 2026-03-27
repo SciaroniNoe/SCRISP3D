@@ -1,5 +1,5 @@
 <template>
-    <div id="view"></div>
+    <div id="map3D"></div>
 </template>
 
 <script>
@@ -10,6 +10,7 @@ import Instance from "@giro3d/giro3d/core/Instance.js";
 import ColorLayer from "@giro3d/giro3d/core/layer/ColorLayer.js";
 import Map from "@giro3d/giro3d/entities/Map.js";
 import WmtsSource from "@giro3d/giro3d/sources/WmtsSource.js";
+
 export default {
 	data() {},
 	methods: {},
@@ -25,7 +26,7 @@ export default {
         );
 
         const instance = new Instance({
-            target: 'view',
+            target: 'map3D',
             crs: crs2056,
         });
 
@@ -55,7 +56,7 @@ export default {
 </script>
 
 <style scoped>
-#view {
+#map3D {
   width: 100%;
   height: 100%;
   background-color: #ffffff;

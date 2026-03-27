@@ -34,15 +34,29 @@ export const usestore = defineStore('trace', {
       ],
 
       selectedTraceId: null,
-      is3dMode: false,
+
       isSidebarOpen: false,
       isCreatePopupOpen: false,
 
+      is3dMode: false,
+
+      backgroundLayers: [
+        { id: 'layerOrtho', label: 'Orthophoto', wmts: 'ch.swisstopo.swissimage', active: false },
+        { id: 'layerCN', label: 'Carte Nationale', wmts: 'ch.swisstopo.pixelkarte-farbe', active: true },
+        { id: 'layerRelief', label: 'Relief', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', active: false },
+        { id: 'layerMO', label: 'Mensuration', wmts: 'ch.swisstopo.pixelkarte-relais.light', active: false }
+      ],
+
+      extraLayers: [
+        { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo.hangneigung-ueber_30', active: false },
+        { id: 'layerRandonnee', label: 'Randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false }
+      ]
 
     }
   },
 
   getters: {
+    selectedBackground: (state) => state.backgroundLayers.find(l => l.active),
     selectedTrace: (state) => state.traces.find(t => t.id === state.selectedTraceId)
   },
 
@@ -71,6 +85,13 @@ export const usestore = defineStore('trace', {
 
     selectTrace(id) {
       this.selectedTraceId = id
+    },
+
+    // Logique pour s'assurer qu'un seul arrière-plan est actif
+    setBackground(layerId) {
+      this.backgroundLayers.forEach(layer => {
+        layer.active = (layer.id === layerId);
+      });
     }
   }
 })
