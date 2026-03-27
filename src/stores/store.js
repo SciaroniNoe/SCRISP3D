@@ -43,13 +43,13 @@ export const usestore = defineStore('trace', {
       backgroundLayers: [
         { id: 'layerOrtho', label: 'Orthophoto', wmts: 'ch.swisstopo.swissimage', active: false },
         { id: 'layerCN', label: 'Carte Nationale', wmts: 'ch.swisstopo.pixelkarte-farbe', active: true },
-        { id: 'layerRelief', label: 'Relief', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', active: false },
-        { id: 'layerMO', label: 'Mensuration', wmts: 'ch.swisstopo.pixelkarte-relais.light', active: false }
+        { id: 'layerRelief', label: 'Relief multidirectionnel', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', active: false },
+        { id: 'layerMO', label: 'Mensuration Officielle', wmts: 'ch.swisstopo.pixelkarte-relais.light', active: false }
       ],
 
       extraLayers: [
         { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo.hangneigung-ueber_30', active: false },
-        { id: 'layerRandonnee', label: 'Randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false }
+        { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false }
       ]
 
     }
