@@ -1,6 +1,8 @@
 <template>
-  <div class="popup-overlay">
+  <div class="popup-overlay"> @click.self="emit('close')">
     <div class="popup-content">
+      <button class="close-btn" @click="emit('close')" aria-label="Fermer">✕</button>
+
       <header>
         <h3>Créer un tracé</h3>
       </header>
@@ -126,4 +128,35 @@ input {
 .btn-create:hover {
   background-color: #ff7777;
 }
+
+.popup-content {
+  position: relative; /* Indispensable pour placer la croix par rapport au bord de la fenêtre */
+  background: white;
+  width: 350px;
+  border-radius: 20px;
+  border: 2px solid #ff00ff;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #ff00ff; /* Rappel de la couleur de ta bordure au survol */
+}
+
 </style>

@@ -8,10 +8,11 @@
     <SidebarInfo :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebarinfo" />
     <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebar" />
 
+    <CreateTraceButton :class="{ 'shifted': store.isSidebarOpen }" @trigger-create="store.isCreatePopupOpen = true" />
+    <CreateTracePopup v-if="store.isCreatePopupOpen" @close="store.isCreatePopupOpen = false" />
+
     <main class="main-content">
       <MapContainer />
-      <CreateTraceButton @trigger-create="store.isCreatePopupOpen = true" />
-      <CreateTracePopup v-if="store.isCreatePopupOpen" @close="store.isCreatePopupOpen = false" />
     </main>
   </div>
 </template>
@@ -25,8 +26,7 @@ import CreateTraceButton from './components/ui/CreateTraceButton.vue';
 import CreateTracePopup from './components/ui/CreateTracePopup.vue';
 
 const store = usestore()
-const caca = 0
-//const caca = 'caca'
+
 
 </script>
 
@@ -93,4 +93,19 @@ const caca = 0
   font-size: 1.2rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+
+/* Position de base du bouton (quand la barre est fermée) */
+:deep(.create-trace-button-class) { /* Remplace par la classe réelle à l'intérieur de ton composant */
+  position: absolute;
+  left: 20px; /* Position initiale */
+  bottom: 20px;
+  transition: transform 0.3s ease-in-out; /* Même durée que la sidebar */
+  z-index: 500;
+}
+
+/* Position quand la barre est ouverte */
+.shifted {
+  transform: translateX(340px); /* 300px correspond à la largeur de ta sidebar */
+}
+
 </style>
