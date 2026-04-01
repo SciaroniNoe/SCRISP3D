@@ -1,11 +1,12 @@
 <template>
   <div class="app-wrapper">
-    <button class="burger-btn" @click="store.isSidebarOpen = !store.isSidebarOpen">
-      <span v-if="store.isSidebarOpen">✕</span>
+    <button class="burger-btn" @click="store.handleBurgerClick()">
+      <span v-if="store.isSidebarInfoOpen">←</span>
+      <span v-else-if="store.isSidebarOpen">✕</span>
       <span v-else>☰</span>
     </button>
 
-    <SidebarInfo :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebarinfo" />
+    <SidebarInfo :class="{ 'is-closed': !store.isSidebarInfoOpen }" class="floating-sidebarinfo" />
     <SidebarList :class="{ 'is-closed': !store.isSidebarOpen }" class="floating-sidebar" />
 
     <CreateTraceButton :class="{ 'shifted': store.isSidebarOpen }" @trigger-create="store.isCreatePopupOpen = true" />
@@ -44,7 +45,7 @@ const store = usestore()
   left: 0;
   height: 100%;
   width: 300px;
-  z-index: 498;
+  z-index: 501;
   background: white;
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   transition: transform 0.3s ease-in-out;

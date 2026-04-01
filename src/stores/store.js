@@ -36,6 +36,7 @@ export const usestore = defineStore('trace', {
       selectedTraceId: null,
 
       isSidebarOpen: false,
+      isSidebarInfoOpen: false,
       isCreatePopupOpen: false,
 
       is3dMode: false,
@@ -85,6 +86,7 @@ export const usestore = defineStore('trace', {
 
     selectTrace(id) {
       this.selectedTraceId = id
+      this.isSidebarInfoOpen = true
     },
 
     // Logique pour s'assurer qu'un seul arrière-plan est actif
@@ -92,6 +94,18 @@ export const usestore = defineStore('trace', {
       this.backgroundLayers.forEach(layer => {
         layer.active = (layer.id === layerId);
       });
+    },
+
+    handleBurgerClick() {
+      if (!this.isSidebarOpen) {
+        this.isSidebarOpen = true
+      } else {
+        if (this.isSidebarInfoOpen) {
+          this.isSidebarInfoOpen = false
+        } else {
+          this.isSidebarOpen = false
+        }
+      }
     }
   }
 })
