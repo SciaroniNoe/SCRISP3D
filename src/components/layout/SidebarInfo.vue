@@ -95,7 +95,9 @@ watch(
           label: 'Altitude',
           data: points,
           borderColor: 'blue',
-          tension: 0.2
+          tension: 0.2,
+          pointRadius: 1,          // taille normale
+          pointHoverRadius: 7,     // au survol    
         }
       ]
     },
@@ -115,6 +117,30 @@ watch(
             display: true,
             text: 'Altitude (m)'
           }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            title: function(context) {
+              return `Distance parcourue : ${100*context[0].parsed.x/200+1} %`
+            },
+            label: function(context) {
+              return `Altitude : ${context.parsed.y} m`
+            }
+          }
+        }
+      },
+      onHover: (event, elements) => {
+        if (elements.length > 0) {
+          const pointIndex = elements[0].index
+          store.hoveredPointIndex = pointIndex
+        } else {
+          store.hoveredPointIndex = null
         }
       }
     }

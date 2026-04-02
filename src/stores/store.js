@@ -34,6 +34,7 @@ export const usestore = defineStore('trace', {
       ],
 
       selectedTraceId: null,
+      hoveredPointIndex: null,
 
       isSidebarOpen: false,
       isSidebarInfoOpen: false,
