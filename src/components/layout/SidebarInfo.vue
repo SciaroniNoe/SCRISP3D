@@ -51,7 +51,7 @@
       </div>
 
       <div class="action-buttons">
-        <button class="action-btn delete-btn">Supprimer</button>
+        <button class="action-btn delete-btn" @click="store.deleteTrace(store.selectedTrace.id)">Supprimer</button>
       </div>
     </div>
 
@@ -88,22 +88,37 @@ watch(
     console.log("zVALUE",zValues)
 
     chartInstance = new Chart(altitudeCanvas.value, {
-      type: 'line',
-      data: {
-        datasets: [
-          {
-            label: 'Altitude',
-            data: points,
-            borderColor: 'blue',
-            tension: 0.2
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Altitude',
+          data: points,
+          borderColor: 'blue',
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Distance (points)'
           }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Altitude (m)'
+          }
+        }
       }
-    })
+    }
+  })
   },
   { immediate: true }
 )

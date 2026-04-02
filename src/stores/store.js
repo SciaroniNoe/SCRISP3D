@@ -90,6 +90,7 @@ export const usestore = defineStore('trace', {
 
     // Se vuoi cancellare
     deleteTrace(id) {
+      this.isSidebarInfoOpen = false
       this.traces = this.traces.filter(t => t.id !== id)
       this.saveToBrowser()
     },
