@@ -28,7 +28,6 @@ export default {
       const E_MN95 = 2600000;
       const N_MN95 = 1200000;
 
-      // Conversione MN95 -> WGS84 [Longitudine, Latitudine]
       const [longitude, latitude] = proj4("EPSG:2056", "EPSG:4326", [E_MN95, N_MN95]);
       console.log(`Coordinate WGS84: Longitudine=${longitude}, Latitudine=${latitude}`);
 
@@ -65,14 +64,13 @@ export default {
         );
         viewer.scene.primitives.add(swissBuildings);
 
-        // --- CAMERA SETTINGS ---
         const pitchGradi = -35; 
 
         viewer.camera.setView({
           destination: Cartesian3.fromDegrees(longitude, latitude, 2500), // 2500 metri di altitudine
           orientation: {
-            heading: CesiumMath.toRadians(0.0),      // Direzione Nord
-            pitch: CesiumMath.toRadians(pitchGradi), // Inclinazione
+            heading: CesiumMath.toRadians(0.0),
+            pitch: CesiumMath.toRadians(pitchGradi),
             roll: 0.0
           },
         });
