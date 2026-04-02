@@ -1,5 +1,5 @@
 <template>
-  <div class="popup-overlay"> @click.self="emit('close')">
+  <div class="popup-overlay" @click.self="emit('close')">
     <div class="popup-content">
       <button class="close-btn" @click="emit('close')" aria-label="Fermer">✕</button>
 
@@ -36,16 +36,18 @@
 
 <script setup>
 import { ref } from 'vue';
+import { usestore } from '@/stores/store'
+const store = usestore();
 
 const traceName = ref('TEST'); // Valeur par défaut visible sur le schéma [cite: 12]
 const emit = defineEmits(['close', 'confirm']);
 
 const submitTrace = () => {
-  if (traceName.value.trim()) {
-    emit('confirm', traceName.value);
-    // Logique pour passer à l'étape suivante (InfoBoxEndTrace)
-  }
+  store.triggerDraw(traceName.value);
+  emit('close');
 };
+
+
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const usestore = defineStore('trace', {
   state: () => {
-    
+
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
@@ -38,6 +38,10 @@ export const usestore = defineStore('trace', {
       isSidebarInfoOpen: false,
       isCreatePopupOpen: false,
 
+      isDrawingActive: false,
+      drawingTrigger: 0,
+      tempTraceName: '',
+
       is3dMode: false,
 
       backgroundLayers: [
@@ -61,6 +65,13 @@ export const usestore = defineStore('trace', {
   },
 
   actions: {
+    triggerDraw(name) {
+      this.tempTraceName = name;
+      this.isDrawingActive = true;
+      this.drawingTrigger++; // Incrémenter force le "watch" à s'activer
+      this.isCreatePopupOpen = false;
+    },
+
     addTrace(newTrace) {
       const traceToAdd = {
         id: Date.now(),
