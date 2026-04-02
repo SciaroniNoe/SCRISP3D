@@ -2,12 +2,11 @@ import { defineStore } from 'pinia'
 
 export const usestore = defineStore('trace', {
   state: () => {
-    // Prova a recuperare i tracciati salvati nel browser
+    
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
-      // Se esistono li carichiamo (convertendoli da testo a oggetto),
-      // altrimenti usiamo l'array con i test
+      // Se esistono li carichiamo sennò usiamo l'array con i test
       traces: savedTraces ? JSON.parse(savedTraces) : [
         {
           id: 1,
@@ -62,7 +61,6 @@ export const usestore = defineStore('trace', {
   },
 
   actions: {
-    // Modifichiamo l'azione per salvare ogni volta che aggiungiamo un tracciato
     addTrace(newTrace) {
       const traceToAdd = {
         id: Date.now(),
@@ -70,18 +68,18 @@ export const usestore = defineStore('trace', {
       }
 
       this.traces.push(traceToAdd)
-      this.saveToBrowser() // <--- Chiamiamo la funzione di salvataggio
+      this.saveToBrowser()
     },
 
-    // Funzione interna per scrivere nel localStorage
+    // Funzione per scrivere nel localStorage
     saveToBrowser() {
       localStorage.setItem('my_traces', JSON.stringify(this.traces))
     },
 
-    // Se vuoi anche poterli cancellare, aggiungi questa:
+    // Se vuoi cancellare
     deleteTrace(id) {
       this.traces = this.traces.filter(t => t.id !== id)
-      this.saveToBrowser() // Aggiorna il salvataggio dopo la cancellazione
+      this.saveToBrowser()
     },
 
     selectTrace(id) {
