@@ -1,5 +1,7 @@
 <template>
-  <div ref="map2D" class="map2D"></div>
+  <div class="map-container">
+    <div ref="map2D" class="map2D"></div>
+  </div>
 </template>
 
 <script>
@@ -14,17 +16,36 @@ import proj4 from "proj4";
 import { register } from "ol/proj/proj4";
 import { usestore } from '@/stores/store';
 
+// Imports pour le dessin
+import VectorSource from 'ol/source/Vector.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import Draw from 'ol/interaction/Draw.js';
+import Modify from 'ol/interaction/Modify.js';
+import Snap from 'ol/interaction/Snap.js';
 
 export default {
   data() {
     return {
-      store: usestore()
+      store: usestore(),
+      instanceCarte: null,
+      donneesCapabilities: null,
+      sourceVecteur: null, // Source pour les tracés
+      typeTrace: 'LineString',
+      interactionDraw: null,
+      interactionSnap: null,
+      interactionModify: null
     }
   },
   mounted() {
     this.initialiserCarte();
   },
   watch: {
+    // Surveille le déclencheur de dessin dans le store
+    'store.drawingTrigger'() {
+      if (this.store.isDrawingActive) {
+        this.reinitialiserInteractions();
+      }
+    },
     // Check les changements de couches dans le store
     'store.backgroundLayers': {
       handler() { this.mettreAJourCouches(); },
@@ -54,6 +75,16 @@ export default {
         units: "m"
       });
 
+      // 1. Préparer la couche vectorielle pour le dessin
+      this.sourceVecteur = new VectorSource();
+      const coucheVecteur = new VectorLayer({
+        source: this.sourceVecteur,
+        style: {
+          'stroke-color': '#ffcc33',
+          'stroke-width': 3,
+        },
+      });
+
       // Récupération des WMTS de Swisstopo
       fetch('https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?lang=fr')
         .then(reponse => reponse.text())
@@ -63,7 +94,7 @@ export default {
           // Création de l'instance de la carte
           this.instanceCarte = new Map({
             target: this.$refs.map2D,
-            layers: [],
+            layers: [coucheVecteur],
             view: new View({
               projection: projectionSuisse,
               extent: mapExtent,
@@ -73,15 +104,87 @@ export default {
             controls: [],
           });
 
+        // 2. Ajouter la modification (toujours active sur la source)
+          this.interactionModify = new Modify({ source: this.sourceVecteur });
+          this.instanceCarte.addInteraction(this.interactionModify);
+
           // Premier affichage des couches
           this.mettreAJourCouches();
-        });
+      });
     },
 
-    mettreAJourCouches() {
+    // Cette méthode est liée à votre bouton @click="submitTrace"
+    submitTrace() {
+     console.log("Mode tracé activé");
+      this.reinitialiserInteractions();
+    },
 
+  reinitialiserInteractions() {
+    // Supprimer les interactions de dessin existantes
+    if (this.interactionDraw) this.instanceCarte.removeInteraction(this.interactionDraw);
+    if (this.interactionSnap) this.instanceCarte.removeInteraction(this.interactionSnap);
+
+
+    this.interactionDraw = new Draw({
+      source: this.sourceVecteur,
+      type: this.typeTrace,
+    });
+    this.instanceCarte.addInteraction(this.interactionDraw);
+
+    // Le Snap permet de "coller" les points aux bords existants (très pratique)
+    this.interactionSnap = new Snap({ source: this.sourceVecteur });
+    this.instanceCarte.addInteraction(this.interactionSnap);
+
+this.interactionDraw.on('drawend', (event) => {
+  this.store.isDrawingActive = false;
+
+  // On vérifie que l'event et la feature existent bien
+  if (event && event.feature) {
+    const feature = event.feature;
+    const geometry = feature.getGeometry();
+
+    if (geometry) {
+      const coordinates = geometry.getCoordinates();
+
+      // Création de l'objet selon votre structure
+      const nouvelleTrace = {
+        name: this.store.tempTraceName || "Tracé sans nom",
+        geometry: coordinates,
+        h_start_m: 0,
+        h_end_m: 0,
+        length_m: 0,
+        elevation_difference_m: 0,
+        positive_elevation_m: 0,
+        negative_elevation_m: 0
+      };
+
+      // Ajout au store Pinia
+      this.store.addTrace(nouvelleTrace);
+      console.log("Géométrie capturée :", coordinates);
+    }
+  }
+
+        // ON SORT DU MODE DESSIN :
+    // On retire les interactions pour que le curseur redevienne normal
+    // et qu'on ne puisse pas recommencer une deuxième ligne immédiatement.
+        setTimeout(() => {
+          this.instanceCarte.removeInteraction(this.interactionDraw);
+          this.instanceCarte.removeInteraction(this.interactionSnap);
+        }, 100);
+      });
+  },
+
+  mettreAJourCouches() {
       if (!this.instanceCarte || !this.donneesCapabilities) return;
-      this.instanceCarte.getLayers().clear();
+
+      // On ne vide pas tout, sinon on perd la couche de dessin
+      // On filtre pour ne garder que la couche vectorielle de dessin
+      const layers = this.instanceCarte.getLayers().getArray();
+      for (let i = layers.length - 1; i >= 0; i--) {
+        if (layers[i] instanceof TileLayer) {
+          this.instanceCarte.removeLayer(layers[i]);
+        }
+      }
       // Couche d'arrière plan
       const coucheFondActive = this.store.backgroundLayers.find(couche => couche.active);
       if (coucheFondActive) {
@@ -105,10 +208,11 @@ export default {
         source: new WMTS(optionsSource),
         opacity: valeurOpacite
       });
-      this.instanceCarte.addLayer(nouvelleCouche);
+      this.instanceCarte.getLayers().insertAt(0, nouvelleCouche);
     }
   }
 }
+
 </script>
 
 <style scoped>
@@ -124,4 +228,20 @@ export default {
   font-weight: bold;
 }
 
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.toolbar {
+  position: absolute;
+  top: 10px;
+  left: 50px;
+  z-index: 10;
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 </style>

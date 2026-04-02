@@ -1,8 +1,9 @@
+import { swisstopoService } from '@/services/swisstopo'
 import { defineStore } from 'pinia'
 
 export const usestore = defineStore('trace', {
   state: () => {
-    
+
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
@@ -22,7 +23,7 @@ export const usestore = defineStore('trace', {
         {
           id: 2,
           name: 'Trace TEST 2',
-          geometry: [[2533000, 1152000], [2534000, 1153000], [2535000, 1152500]],
+          geometry: [[2533000, 1152000,0], [2534000, 1153000,100], [2535000, 1152500,50]],
           h_start_m: 450.5,
           h_end_m: 510.2,
           length_m: 1540,
@@ -37,6 +38,10 @@ export const usestore = defineStore('trace', {
       isSidebarOpen: false,
       isSidebarInfoOpen: false,
       isCreatePopupOpen: false,
+
+      isDrawingActive: false,
+      drawingTrigger: 0,
+      tempTraceName: '',
 
       is3dMode: false,
 
@@ -61,6 +66,13 @@ export const usestore = defineStore('trace', {
   },
 
   actions: {
+    triggerDraw(name) {
+      this.tempTraceName = name;
+      this.isDrawingActive = true;
+      this.drawingTrigger++; // Incrémenter force le "watch" à s'activer
+      this.isCreatePopupOpen = false;
+    },
+
     addTrace(newTrace) {
       const traceToAdd = {
         id: Date.now(),
@@ -78,6 +90,7 @@ export const usestore = defineStore('trace', {
 
     // Se vuoi cancellare
     deleteTrace(id) {
+      this.isSidebarInfoOpen = false
       this.traces = this.traces.filter(t => t.id !== id)
       this.saveToBrowser()
     },
