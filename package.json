@@ -13,7 +13,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@giro3d/giro3d": "^1.0.0",
+    "@giro3d/giro3d": "^2.0.0",
     "bootstrap": "^5.3.8",
     "cesium": "^1.140.0",
     "chart.js": "^4.5.1",
