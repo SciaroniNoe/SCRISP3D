@@ -1,3 +1,4 @@
+import { swisstopoService } from '@/services/swisstopo'
 import { defineStore } from 'pinia'
 
 export const usestore = defineStore('trace', {
@@ -23,7 +24,7 @@ export const usestore = defineStore('trace', {
         {
           id: 2,
           name: 'Trace TEST 2',
-          geometry: [[2533000, 1152000], [2534000, 1153000], [2535000, 1152500]],
+          geometry: [[2533000, 1152000,0], [2534000, 1153000,100], [2535000, 1152500,50]],
           h_start_m: 450.5,
           h_end_m: 510.2,
           length_m: 1540,

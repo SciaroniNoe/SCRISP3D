@@ -46,14 +46,12 @@
       <div class="chart-section">
         <h3>Profil altimétrique</h3>
         <div class="chart-placeholder">
-          <canvas></canvas>
+          <canvas ref="altitudeCanvas"></canvas>
         </div>
       </div>
 
       <div class="action-buttons">
-        <button class="action-btn edit-btn">Modifier</button>
         <button class="action-btn delete-btn">Supprimer</button>
-
       </div>
     </div>
 
@@ -63,8 +61,52 @@
 
 <script setup>
 import { usestore } from '@/stores/store'
+import { ref, watch, nextTick } from 'vue'
+import Chart from 'chart.js/auto'
+import { swisstopoService } from '@/services/swisstopo'
 
 const store = usestore()
+const altitudeCanvas = ref(null)
+let chartInstance = null
+
+watch(
+  () => store.selectedTrace,
+  async (trace) => {
+    if (!trace) return
+    await nextTick()
+
+    if (!altitudeCanvas.value) return
+
+    // Si un ancien graphique existe, on le détruit
+    if (chartInstance) {
+      chartInstance.destroy()
+    }
+
+    const geometry = trace.geometry
+    const zValues = await swisstopoService.getLineProfile(geometry)
+    const points = zValues.map((z, i) => ({ x: i, y: z }))
+    console.log("zVALUE",zValues)
+
+    chartInstance = new Chart(altitudeCanvas.value, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Altitude',
+            data: points,
+            borderColor: 'blue',
+            tension: 0.2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -151,10 +193,6 @@ h2 {
 
 .delete-btn:hover {
   background-color: #c62828;
-}
-
-.edit-btn {
-  background-color: #1976d2;
 }
 
 .edit-btn:hover {

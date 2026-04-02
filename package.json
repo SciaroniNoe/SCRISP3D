@@ -15,6 +15,7 @@
   "dependencies": {
     "@giro3d/giro3d": "^1.0.0",
     "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.1",
     "ol": "^10.8.0",
     "pinia": "^3.0.4",
     "proj4": "^2.20.4",
