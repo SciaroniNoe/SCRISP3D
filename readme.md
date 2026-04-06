@@ -1,11 +1,11 @@
 # SCRISP3D
 
-SCRISP3D est une application web de Système d'Information Géographique (SIG) interactive développée dans le cadre du Master MDT. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données topographiques officielles de swisstopo.
+SCRISP3D est une application web interactive développée dans le cadre du Master MDT pour le module Géoinformatique opérationnelle. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données topographiques officielles de SwissTopo.
 
 ## Fonctionnalités
-- Cartographie 2D/3D : Visualisation haute performance avec OpenLayers et intégration prévue pour le 3D (Cesium/SwissTerrain).
+- Cartographie 2D/3D : Visualisation avec OpenLayers et intégration prévue pour le 3D (Cesium).
 - Gestion des Tracés : Interface intuitive pour lister, sélectionner et analyser des itinéraires.
-- Données Officielles : Intégration complète des services WMTS de swisstopo (Système de coordonnées MN95).
+- Données Officielles : Intégration complète des services WMTS de SwissTopo.
 - Interface Responsive : Sidebar escamotable (Menu Burger) permettant de maximiser l'espace de travail sur la carte.
 
 ## Technologies Utilisées
@@ -18,21 +18,27 @@ SCRISP3D est une application web de Système d'Information Géographique (SIG) i
 ## Installation et Lancement
 
 ### Prérequis
-Assurez-vous d'avoir Node.js (version 18 ou supérieure) installé sur votre machine.
+Assurez-vous d'avoir Node.js installé sur votre machine.¨
 
-### 1. Préparation du projet
+## 1. Clonage du projet
+Déplacez-vous dans le dossier où vous souhaitez enregistrer le projet, puis exécutez la commande :  
+```sh
+git clone https://github.com/SciaroniNoe/SCRISP3D.git
+```
+
+### 2. Accéder au projet
 Entrez dans le dossier du projet :
 ```sh
 cd SCRISP3D
 ```
 
-### 2. Installation des dépendances
-Installez les bibliothèques nécessaires (Vue, Pinia, OpenLayers, Bootstrap) :
+### 3. Installation des dépendances
+Installez les bibliothèques nécessaires (contenues dans le fichier package.json) :
 ```sh
 npm install
 ```
 
-### 3. Lancement de l'application
+### 4. Lancement de l'application
 Démarrez le serveur de développement local :
 ```sh
 npm run dev
