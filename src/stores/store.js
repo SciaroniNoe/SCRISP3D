@@ -47,8 +47,8 @@ export const usestore = defineStore('trace', {
       is3dMode: false,
 
       cameraPosition: {
-        center: [2600000, 1200000],
-        zoom: 9,      // OpenLayers
+        center: [2677489, 1184863],
+        zoom: 2,      // OpenLayers
         height: 2500,  // Cesium [m]
         pitch: -90    // inclinaison [deg]
       },
@@ -107,10 +107,18 @@ export const usestore = defineStore('trace', {
       this.saveToBrowser()
     },
 
-    selectTrace(id) {
-      this.selectedTraceId = id
-      this.isSidebarInfoOpen = true
-    },
+selectTrace(id) {
+    // Se clicco lo stesso ID, lo resetto un istante per forzare il watcher 
+    if (this.selectedTraceId === id) {
+      this.selectedTraceId = null; 
+      setTimeout(() => {
+        this.selectedTraceId = id;
+      }, 10);
+    } else {
+      this.selectedTraceId = id;
+    }
+    this.isSidebarInfoOpen = true;
+  },
 
     // Logique pour s'assurer qu'un seul arrière-plan est actif
     setBackground(layerId) {

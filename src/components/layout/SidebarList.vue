@@ -3,17 +3,10 @@
     <h2>Liste des tracés</h2>
 
     <div class="trace-container">
-      <div 
-        v-for="trace in store.traces" 
-        :key="trace.id" 
-        class="trace-item"
-      >
-        <button 
-          class="trace-button" 
-          :class="{ active: store.selectedTraceId === trace.id }"
-          @click="store.selectTrace(trace.id)"
-        >
-          {{ trace.name }}
+      <div v-for="trace in store.traces" :key="trace.id" class="trace-item">
+        <button class="trace-button" :class="{ active: store.selectedTraceId === trace.id }"
+          @click="store.selectTrace(trace.id)">
+          <span class="trace-name">{{ trace.name }}</span>
           <small>{{ (trace.length_m / 1000).toFixed(2) }} km</small>
         </button>
       </div>
@@ -46,7 +39,7 @@ h2 {
   padding-top: 60px;
   height: 100vh;
   transition: all 0.3s ease;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -57,15 +50,17 @@ h2 {
 
 .trace-button {
   width: 100%;
-  padding: 8px;
+  padding: 10px 15px;
   margin-bottom: 8px;
   background-color: white;
-  border: 1px solid #1976d2;/* bbdefb */
-  border-radius: 6px;
+  border: 2px solid #1976d2;
+  border-radius: 120px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  align-items: center;
   transition: all 0.2s;
+  color: #1976d2;
 }
 
 .trace-button:hover {
@@ -75,7 +70,14 @@ h2 {
 .trace-button.active {
   background-color: #1976d2;
   color: white;
-  border-color: #0d47a1;
+  border-color: #1976d2;
+}
+
+.trace-name {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 small {

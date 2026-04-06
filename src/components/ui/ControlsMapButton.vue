@@ -27,7 +27,8 @@
         <div class="buttons-stack">
             <button class="map-btn" :class="{ 'btn-active': isLayerMenuOpen }"
                 @click="isLayerMenuOpen = !isLayerMenuOpen">
-                <span class="btn-icon">L</span>
+                <img :src="isLayerMenuOpen ? '/Layer_White.svg' : '/Layer_Blue.svg'" alt="Layer Icon"
+                    class="btn-icon-img" />
             </button>
 
             <button class="map-btn" :class="{ 'is-active-3d': store.is3dMode }"
@@ -53,7 +54,7 @@ const isLayerMenuOpen = ref(false)
 <style scoped>
 .map-controls-wrapper {
     position: absolute;
-    bottom: 30px;
+    bottom: 20px;
     right: 20px;
     display: flex;
     align-items: flex-end;
@@ -62,7 +63,7 @@ const isLayerMenuOpen = ref(false)
 
 .layers-window {
     background-color: #e3f2fdd3;
-    border: 1px solid #1565c0;
+    border: 2px solid #1976d2;
     border-radius: 22.5px;
     padding-left: 22px;
     padding-top: 22px;
@@ -78,7 +79,7 @@ const isLayerMenuOpen = ref(false)
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 800;
-    color: #1565c0;
+    color: #1976d2;
     margin: 0px 0 8px 0;
 }
 
@@ -98,8 +99,8 @@ const isLayerMenuOpen = ref(false)
     width: 45px;
     height: 45px;
     border-radius: 22.5px;
-    border: 1px solid #1565c0;
-    background-color: #e3f2fd;
+    border: 2px solid #1976d2;
+    background-color: #e3f2fdd8;
     color: #1976d2;
     font-weight: bold;
     cursor: pointer;
@@ -108,10 +109,20 @@ const isLayerMenuOpen = ref(false)
     justify-content: center;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 0;
 }
 
 .map-btn:hover {
     background-color: #bbdefb;
+}
+
+
+.btn-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 

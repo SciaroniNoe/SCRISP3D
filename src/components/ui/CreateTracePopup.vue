@@ -20,7 +20,7 @@
       <div class="import-zone">
         <p>Optionnel : importez un fichier GPX pour créer le tracé</p>
         <div class="drop-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#4A90E2">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="#a0c4ff">
             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
           </svg>
           <span>GPX</span>
@@ -65,18 +65,23 @@ const submitTrace = () => {
 }
 
 .popup-content {
-  background: white;
+  position: relative;
   width: 350px;
-  border-radius: 20px;
-  border: 2px solid #ff00ff; /* Bordure rose distinctive du schéma */
+  border-radius: 22.5px;
+  border: 2px solid #1976d2;
+  background-color: #e3f2fdd8;
+  color: #1976d2;
   padding: 20px;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  font-weight: 600;
 }
 
 header h3 {
-  color: #2c3e50;
+  color: #1976d2;
+  font-size: 24px;
   margin-bottom: 20px;
+  margin-top: 10px;
 }
 
 .form-group {
@@ -91,7 +96,7 @@ input {
   border-radius: 15px;
   border: 1px solid #a0c4ff;
   padding: 5px 15px;
-  background-color: #eef4ff;
+  background-color: #ffffff;
 }
 
 .import-zone {
@@ -104,7 +109,7 @@ input {
 
 .import-zone p {
   font-size: 0.8rem;
-  color: #666;
+  color: #8d8d8d;
   margin-bottom: 10px;
 }
 
@@ -113,11 +118,11 @@ input {
   flex-direction: column;
   align-items: center;
   font-weight: bold;
-  color: #4A90E2;
+  color: #a0c4ff;
 }
 
 .btn-create {
-  background-color: #ff9999; /* Couleur rosée/rouge du bouton "Créer" */
+  background-color: #755edd;
   border: none;
   border-radius: 15px;
   padding: 8px 30px;
@@ -125,22 +130,14 @@ input {
   font-weight: bold;
   cursor: pointer;
   float: right;
+  font-weight: 600;
 }
 
 .btn-create:hover {
-  background-color: #ff7777;
+  background-color: #563cc7;
 }
 
-.popup-content {
-  position: relative; /* Indispensable pour placer la croix par rapport au bord de la fenêtre */
-  background: white;
-  width: 350px;
-  border-radius: 20px;
-  border: 2px solid #ff00ff;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
+
 
 .close-btn {
   position: absolute;
@@ -148,7 +145,7 @@ input {
   right: 15px;
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #666;
   cursor: pointer;
@@ -158,7 +155,7 @@ input {
 }
 
 .close-btn:hover {
-  color: #ff00ff; /* Rappel de la couleur de ta bordure au survol */
+  color: #ff0000; /* Rappel de la couleur de ta bordure au survol */
 }
 
 </style>

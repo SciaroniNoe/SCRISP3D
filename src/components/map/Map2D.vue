@@ -79,8 +79,8 @@ export default {
             const coucheVecteur = new VectorLayer({
                 source: this.sourceVecteur,
                 style: {
-                    'stroke-color': '#ffcc33',
-                    'stroke-width': 3,
+                    'stroke-color': '#ff0000',
+                    'stroke-width': 5,
                 },
             });
 
@@ -226,7 +226,7 @@ export default {
 .map2D {
     width: 100%;
     height: 100%;
-    background-color: #bbffc1;
+    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;

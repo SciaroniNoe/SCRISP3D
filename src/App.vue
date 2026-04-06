@@ -46,7 +46,7 @@ const store = usestore()
   height: 100%;
   width: 300px;
   z-index: 501;
-  background: white;
+  background: #e3f2fd;
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   transition: transform 0.3s ease-in-out;
 }
@@ -58,7 +58,8 @@ const store = usestore()
   height: 100%;
   width: 300px;
   z-index: 499;
-  background: #e3f2fd;
+  background: #e3f2fdd8;
+  /*border-right: 2px solid #1976d2;*/
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   transition: transform 0.3s ease-in-out;
 }
@@ -81,6 +82,8 @@ const store = usestore()
 }
 
 .burger-btn {
+  width: 40px;
+  height: 40px;
   position: absolute;
   top: 20px;
   left: 20px;
@@ -89,7 +92,7 @@ const store = usestore()
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 0px 0px;
   cursor: pointer;
   font-size: 1.2rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
