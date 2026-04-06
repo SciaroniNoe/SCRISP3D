@@ -2,6 +2,11 @@
 
 SCRISP3D est une application web interactive développée dans le cadre du Master MDT pour le module Géoinformatique opérationnelle. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données topographiques officielles de SwissTopo.
 
+## Ce projet a été développé par :
+- **Sciaroni Noè**  
+- **Rigolet Théo**  
+- **Spoerri Nicolas**  
+
 ## Fonctionnalités
 - Cartographie 2D/3D : Visualisation avec OpenLayers et intégration prévue pour le 3D (Cesium).
 - Gestion des Tracés : Interface intuitive pour lister, sélectionner et analyser des itinéraires.
