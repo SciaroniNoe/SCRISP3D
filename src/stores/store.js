@@ -23,7 +23,7 @@ export const usestore = defineStore('trace', {
         {
           id: 2,
           name: 'Trace TEST 2',
-          geometry: [[2533000, 1152000,0], [2534000, 1153000,100], [2535000, 1152500,50]],
+          geometry: [[2533000, 1152000, 0], [2534000, 1153000, 100], [2535000, 1152500, 50]],
           h_start_m: 450.5,
           h_end_m: 510.2,
           length_m: 1540,
@@ -46,16 +46,27 @@ export const usestore = defineStore('trace', {
 
       is3dMode: false,
 
+      cameraPosition: {
+        center: [2600000, 1200000],
+        zoom: 9,      // OpenLayers
+        height: 2500,  // Cesium [m]
+        pitch: -90    // inclinaison [deg]
+      },
+
       backgroundLayers: [
-        { id: 'layerOrtho', label: 'Orthophoto', wmts: 'ch.swisstopo.swissimage', active: false },
-        { id: 'layerCN', label: 'Carte Nationale', wmts: 'ch.swisstopo.pixelkarte-farbe', active: true },
-        { id: 'layerRelief', label: 'Relief multidirectionnel', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', active: false },
-        { id: 'layerMO', label: 'Mensuration Officielle', wmts: 'ch.kantone.cadastralwebmap-farbe', active: false }
+        { id: 'layerOrtho', label: 'Orthophoto', wmts: 'ch.swisstopo.swissimage', in3dModeTypeLayer: 'wmts', active: false },
+        { id: 'layerCN', label: 'Carte Nationale', wmts: 'ch.swisstopo.pixelkarte-farbe', in3dModeTypeLayer: 'wmts', active: true },
+        { id: 'layerRelief', label: 'Relief multidirectionnel', wmts: 'ch.swisstopo.swisssurface3d-reliefschattierung-multidirektional', in3dModeTypeLayer: 'wms', active: false },
+        { id: 'layerMO', label: 'Mensuration Officielle', wmts: 'ch.kantone.cadastralwebmap-farbe', in3dModeTypeLayer: 'wms', active: false }
       ],
 
       extraLayers: [
-        { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo-karto.hangneigung', active: false, opacity: 0.4}, // Theo tu prefer ch.swisstopo.hangneigung-ueber_30?
-        { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false, opacity: 1.0}
+        { id: 'layerPente', label: 'Pentes (>30°)', wmts: 'ch.swisstopo-karto.hangneigung', active: false, opacity: 0.4 }, // Theo tu prefer ch.swisstopo.hangneigung-ueber_30?
+        { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false, opacity: 1.0 }
+      ],
+
+      extraLayers_3D: [
+        { id: 'batiments', label: 'Bâtiments 3D', active: false }
       ]
 
     }
@@ -118,6 +129,10 @@ export const usestore = defineStore('trace', {
           this.isSidebarOpen = false
         }
       }
+    },
+
+    updateCamera(newValues) {
+      this.cameraPosition = { ...this.cameraPosition, ...newValues };
     }
   }
 })
