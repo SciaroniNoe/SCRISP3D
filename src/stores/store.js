@@ -49,7 +49,7 @@ export const usestore = defineStore('trace', {
       cameraPosition: {
         center: [2677489, 1184863],
         zoom: 2,      // OpenLayers
-        height: 15000,  // Cesium [m]
+        height: 10000,  // Cesium [m]
         pitch: -90    // inclinaison [deg]
       },
 
@@ -144,19 +144,13 @@ export const usestore = defineStore('trace', {
     },
 
     changeZoom(plusOrMinus) {
-      if (this.is3dMode) {
         if (plusOrMinus === '+') {
           this.cameraPosition.height *= 0.7
-        } else if (plusOrMinus === '-') {
-          this.cameraPosition.height *= 1.3
-        }
-      } else {
-        if (plusOrMinus === '+') {
           this.cameraPosition.zoom += 1
         } else if (plusOrMinus === '-') {
+          this.cameraPosition.height *= 1.3
           this.cameraPosition.zoom -= 1
         }
       }
-    }
   }
 })
