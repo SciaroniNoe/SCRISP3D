@@ -21,6 +21,8 @@ import VectorLayer from 'ol/layer/Vector.js';
 import Draw from 'ol/interaction/Draw.js';
 import Modify from 'ol/interaction/Modify.js';
 import Snap from 'ol/interaction/Snap.js';
+import Feature from 'ol/Feature.js';
+import LineString from 'ol/geom/LineString.js';
 
 export default {
     data() {
@@ -53,7 +55,24 @@ export default {
         'store.extraLayers': {
             handler() { this.updateLayerMap(); },
             deep: true
-        }
+        },
+        'store.cameraPosition.zoom'(newZoom) {
+            const view = this.instanceCarte.getView();
+            view.setZoom(newZoom);
+        },
+        'store.selectedTraceId': {
+            handler(newId) {
+                if (newId) {
+                this.flyToTrace(newId);
+                }
+            }
+        },
+        'store.traces': {
+            handler() {
+                this.renderTraces();
+            },
+            deep: true
+        },
     },
     methods: {
         initialiserCarte() {
@@ -117,6 +136,9 @@ export default {
 
                     // Premier affichage des couches
                     this.updateLayerMap();
+
+                    // AJoute les traces
+                    this.renderTraces();
                 });
         },
 
@@ -216,6 +238,44 @@ export default {
                 opacity: valeurOpacite
             });
             this.instanceCarte.getLayers().insertAt(0, nouvelleCouche);
+        },
+
+        flyToTrace(traceId){
+            const trace = this.store.traces.find(t => t.id === traceId);
+            if (!trace || !trace.geometry.length) return;
+
+            const coordinates = trace.geometry
+            const lons = coordinates.map(c => c[0]);
+            const lats = coordinates.map(c => c[1]);
+            const extent = [
+              Math.min(...lons),
+              Math.min(...lats),
+              Math.max(...lons),
+              Math.max(...lats)
+            ];
+
+            this.instanceCarte.getView().fit(extent, {
+                duration: 1000,
+                padding: [50, 50, 50, 50],
+                maxZoom: 17
+            });
+        },
+
+        renderTraces() {
+            if (!this.sourceVecteur) return;
+
+            this.sourceVecteur.clear();
+
+            this.store.traces.forEach(trace => {
+                if (!trace.geometry || !trace.geometry.length) return;
+
+                const feature = new Feature({
+                    geometry: new LineString(trace.geometry)
+                });
+
+                feature.setId(trace.id);
+                this.sourceVecteur.addFeature(feature);
+            });
         }
     }
 }

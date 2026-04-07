@@ -43,7 +43,25 @@ export default {
           this.flyToTrace(newId);
         }
       }
-    }
+    },
+    'store.cameraPosition.height'(newHeight) {
+      if (!this.viewer) return;
+
+      const camera = this.viewer.camera;
+      const cartographic = camera.positionCartographic;
+
+      const lon = Cesium.Math.toDegrees(cartographic.longitude);
+      const lat = Cesium.Math.toDegrees(cartographic.latitude);
+
+      this.viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, newHeight),
+        orientation: {
+          heading: camera.heading,
+          pitch: camera.pitch,
+          roll: camera.roll
+        }
+      });
+    },
   },
   mounted() {
     this.setupCesium();
@@ -82,30 +100,20 @@ export default {
       const trace = this.store.traces.find(t => t.id === traceId);
       if (!trace || !trace.geometry.length) return;
 
-      // Calcule de la moyen des coo
-      const sum = trace.geometry.reduce((acc, coord) => {
-        return [acc[0] + coord[0], acc[1] + coord[1]];
-      }, [0, 0]);
+      const coords4326 = trace.geometry.map(([x, y]) =>
+        proj4("EPSG:2056", "EPSG:4326", [x, y])
+      );
+      const lons = coords4326.map(c => c[0]);
+      const lats = coords4326.map(c => c[1]);
+      const rectangle = Cesium.Rectangle.fromDegrees(
+        Math.min(...lons),
+        Math.min(...lats),
+        Math.max(...lons),
+        Math.max(...lats)
+      );
 
-      const center2056 = [
-        sum[0] / trace.geometry.length,
-        sum[1] / trace.geometry.length
-      ];
-
-      const [lon, lat] = proj4("EPSG:2056", "EPSG:4326", center2056);
-
-      // Move camera
       this.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-          lon,
-          lat,
-          trace.length_m * 1.5
-        ),
-        orientation: {
-          heading: Cesium.Math.toRadians(0.0),
-          pitch: Cesium.Math.toRadians(-90.0),
-          roll: 0.0
-        },
+        destination: rectangle,
         duration: 2.0
       });
     },

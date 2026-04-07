@@ -36,8 +36,14 @@
                 3D
             </button>
 
-            <button class="map-btn">+</button>
-            <button class="map-btn">-</button>
+            <button class="map-btn"
+                @click="store.changeZoom('+')">
+                +
+            </button>
+            <button class="map-btn"
+                @click="store.changeZoom('-')">
+                -
+            </button>
         </div>
     </div>
 </template>

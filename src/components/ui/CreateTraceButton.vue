@@ -7,6 +7,8 @@
 </template>
 
 <script setup>
+import { usestore } from '@/stores/store'
+const store = usestore()
 // On définit la prop reçue du parent
 defineProps({
   isShifted: Boolean
@@ -15,6 +17,7 @@ defineProps({
 const emit = defineEmits(['trigger-create']);
 
 const handleCreate = () => {
+  store.is3dMode = false;
   emit('trigger-create');
 };
 </script>

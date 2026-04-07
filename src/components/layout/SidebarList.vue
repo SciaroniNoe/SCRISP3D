@@ -38,6 +38,8 @@ h2 {
   padding: 20px;
   padding-top: 60px;
   height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
   transition: all 0.3s ease;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;

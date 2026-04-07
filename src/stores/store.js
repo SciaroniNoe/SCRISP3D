@@ -49,7 +49,7 @@ export const usestore = defineStore('trace', {
       cameraPosition: {
         center: [2677489, 1184863],
         zoom: 2,      // OpenLayers
-        height: 2500,  // Cesium [m]
+        height: 15000,  // Cesium [m]
         pitch: -90    // inclinaison [deg]
       },
 
@@ -107,18 +107,18 @@ export const usestore = defineStore('trace', {
       this.saveToBrowser()
     },
 
-selectTrace(id) {
-    // Se clicco lo stesso ID, lo resetto un istante per forzare il watcher 
-    if (this.selectedTraceId === id) {
-      this.selectedTraceId = null; 
-      setTimeout(() => {
+    selectTrace(id) {
+      // Se clicco lo stesso ID, lo resetto un istante per forzare il watcher 
+      if (this.selectedTraceId === id) {
+        this.selectedTraceId = null; 
+        setTimeout(() => {
+          this.selectedTraceId = id;
+        }, 10);
+      } else {
         this.selectedTraceId = id;
-      }, 10);
-    } else {
-      this.selectedTraceId = id;
-    }
-    this.isSidebarInfoOpen = true;
-  },
+      }
+      this.isSidebarInfoOpen = true;
+    },
 
     // Logique pour s'assurer qu'un seul arrière-plan est actif
     setBackground(layerId) {
@@ -141,6 +141,22 @@ selectTrace(id) {
 
     updateCamera(newValues) {
       this.cameraPosition = { ...this.cameraPosition, ...newValues };
+    },
+
+    changeZoom(plusOrMinus) {
+      if (this.is3dMode) {
+        if (plusOrMinus === '+') {
+          this.cameraPosition.height *= 0.7
+        } else if (plusOrMinus === '-') {
+          this.cameraPosition.height *= 1.3
+        }
+      } else {
+        if (plusOrMinus === '+') {
+          this.cameraPosition.zoom += 1
+        } else if (plusOrMinus === '-') {
+          this.cameraPosition.zoom -= 1
+        }
+      }
     }
   }
 })
