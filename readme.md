@@ -23,7 +23,10 @@ SCRISP3D est une application web interactive développée dans le cadre du Maste
 ## Installation et Lancement
 
 ### Prérequis
-Assurez-vous d'avoir Node.js installé sur votre machine.¨
+Assurez-vous d'avoir Node.js installé sur votre machine.
+```sh
+node -v
+```
 
 ## 1. Clonage du projet
 Déplacez-vous dans le dossier où vous souhaitez enregistrer le projet, puis exécutez la commande :  
