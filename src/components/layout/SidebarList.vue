@@ -66,7 +66,7 @@ h2 {
 }
 
 .trace-button:hover {
-  background-color: #e1f5fe;
+  background-color: #bbdefb;
 }
 
 .trace-button.active {

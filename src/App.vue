@@ -44,7 +44,7 @@ const store = usestore()
   top: 0;
   left: 0;
   height: 100%;
-  width: 300px;
+  width: 400px;
   z-index: 501;
   background: #e3f2fd;
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
@@ -56,9 +56,9 @@ const store = usestore()
   top: 0;
   left: 0;
   height: 100%;
-  width: 300px;
+  width: 400px;
   z-index: 499;
-  background: #e3f2fdd8;
+  background: #daeffde7;
   /*border-right: 2px solid #1976d2;*/
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   transition: transform 0.3s ease-in-out;
@@ -109,7 +109,7 @@ const store = usestore()
 
 /* Position quand la barre est ouverte */
 .shifted {
-  transform: translateX(340px); /* 300px correspond à la largeur de ta sidebar */
+  transform: translateX(400px); /* 300px correspond à la largeur de ta sidebar */
 }
 
 </style>

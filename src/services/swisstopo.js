@@ -1,8 +1,3 @@
-/**
- * swisstopo.js
- * Service pour interagir avec les API REST de geo.admin.ch (Suisse)
- * Système de coordonnées de référence : MN95 (EPSG:2056)
- */
 
 const BASE_URL = 'https://api3.geo.admin.ch/rest/services';
 

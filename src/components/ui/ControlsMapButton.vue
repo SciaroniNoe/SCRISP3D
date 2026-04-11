@@ -68,7 +68,7 @@ const isLayerMenuOpen = ref(false)
 }
 
 .layers-window {
-    background-color: #e3f2fdd3;
+    background-color: #daeffde7;
     border: 2px solid #1976d2;
     border-radius: 22.5px;
     padding-left: 22px;
@@ -106,7 +106,7 @@ const isLayerMenuOpen = ref(false)
     height: 45px;
     border-radius: 22.5px;
     border: 2px solid #1976d2;
-    background-color: #e3f2fdd8;
+    background-color: #daeffde7;
     color: #1976d2;
     font-weight: bold;
     cursor: pointer;

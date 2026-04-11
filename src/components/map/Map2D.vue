@@ -1,6 +1,11 @@
 <template>
     <div class="map-container">
         <div ref="map2D" class="map2D"></div>
+
+        <transition name="fade">
+            <InfoBoxEndTrace v-if="store.isDrawingActive" />
+        </transition>
+
     </div>
 </template>
 
@@ -14,6 +19,9 @@ import Projection from 'ol/proj/Projection.js'
 import proj4 from "proj4";
 import { register } from "ol/proj/proj4";
 import { usestore } from '@/stores/store';
+import { geoUtils } from '@/services/geoUtils';
+import { swisstopoService } from '@/services/swisstopo';
+import InfoBoxEndTrace from '@/components/ui/InfoBoxEndTrace.vue';
 
 // Imports pour le dessin
 import VectorSource from 'ol/source/Vector.js';
@@ -25,6 +33,9 @@ import Feature from 'ol/Feature.js';
 import LineString from 'ol/geom/LineString.js';
 
 export default {
+    components: {
+        InfoBoxEndTrace,
+    },
     data() {
         return {
             store: usestore(),
@@ -34,7 +45,8 @@ export default {
             typeTrace: 'LineString',
             interactionDraw: null,
             interactionSnap: null,
-            interactionModify: null
+            interactionModify: null,
+            isInternalUpdate: false
         }
     },
     mounted() {
@@ -63,12 +75,16 @@ export default {
         'store.selectedTraceId': {
             handler(newId) {
                 if (newId) {
-                this.flyToTrace(newId);
+                    this.flyToTrace(newId);
                 }
             }
         },
         'store.traces': {
             handler() {
+                if (this.isInternalUpdate) {
+                    this.isInternalUpdate = false;
+                    return;
+                }
                 this.renderTraces();
             },
             deep: true
@@ -93,7 +109,6 @@ export default {
                 units: "m"
             });
 
-            // 1. Préparer la couche vectorielle pour le dessin
             this.sourceVecteur = new VectorSource();
             const coucheVecteur = new VectorLayer({
                 source: this.sourceVecteur,
@@ -103,13 +118,11 @@ export default {
                 },
             });
 
-            // Récupération des WMTS de Swisstopo
             fetch('https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?lang=fr')
                 .then(reponse => reponse.text())
                 .then(texteXml => {
                     this.donneesCapabilities = parser.read(texteXml);
 
-                    // Création de l'instance de la carte
                     this.instanceCarte = new Map({
                         target: this.$refs.map2D,
                         layers: [coucheVecteur],
@@ -122,9 +135,54 @@ export default {
                         controls: [],
                     });
 
-                    // 2. Ajouter la modification (toujours active sur la source)
+                    // 1. Initialisation de l'interaction de modification
                     this.interactionModify = new Modify({ source: this.sourceVecteur });
                     this.instanceCarte.addInteraction(this.interactionModify);
+
+                    // 2. Événement déclenché à la fin d'une modification (déplacement de sommet)
+                    this.interactionModify.on('modifyend', async (event) => {
+                        const modifiedFeatures = event.features.getArray();
+
+                        for (const feature of modifiedFeatures) {
+                            const traceId = feature.getId();
+                            const geometry = feature.getGeometry();
+
+                            if (geometry && traceId) {
+                                const coordinates = geometry.getCoordinates();
+
+                                try {
+                                    // Récupération des nouvelles données altimétriques
+                                    const firstPoint = coordinates[0];
+                                    const lastPoint = coordinates[coordinates.length - 1];
+
+                                    const startHeight = await swisstopoService.getPointHeight(firstPoint[0], firstPoint[1]);
+                                    const endHeight = await swisstopoService.getPointHeight(lastPoint[0], lastPoint[1]);
+                                    const profileZValues = await swisstopoService.getLineProfile(coordinates);
+
+                                    // Calculs des nouvelles propriétés géométriques
+                                    const totalLength = geoUtils.calculateTotalLength(coordinates);
+                                    const gains = geoUtils.calculateElevationGains(profileZValues);
+                                    const elevationDifference = endHeight - startHeight;
+
+                                    // Mise à jour du store Pinia
+                                    const updatedData = {
+                                        geometry: coordinates,
+                                        h_start_m: startHeight,
+                                        h_end_m: endHeight,
+                                        length_m: totalLength,
+                                        elevation_difference_m: elevationDifference,
+                                        positive_elevation_m: gains.positiveElevationGain,
+                                        negative_elevation_m: gains.negativeElevationGain
+                                    };
+                                    this.isInternalUpdate = true;
+                                    this.store.updateTraceData(traceId, updatedData);
+
+                                } catch (error) {
+                                    console.error("Error updating trace after modification:", error);
+                                }
+                            }
+                        }
+                    });
 
                     this.instanceCarte.on('moveend', () => {
                         const view = this.instanceCarte.getView();
@@ -134,10 +192,7 @@ export default {
                         });
                     });
 
-                    // Premier affichage des couches
                     this.updateLayerMap();
-
-                    // AJoute les traces
                     this.renderTraces();
                 });
         },
@@ -164,38 +219,63 @@ export default {
             this.interactionSnap = new Snap({ source: this.sourceVecteur });
             this.instanceCarte.addInteraction(this.interactionSnap);
 
-            this.interactionDraw.on('drawend', (event) => {
+            const handleKeyDown = (event) => {
+                if (event.key === 'Delete' || event.key === 'Backspace') {
+                    event.preventDefault();
+                    if (this.interactionDraw) {
+                        this.interactionDraw.removeLastPoint();
+                    }
+                }
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+
+            this.interactionDraw.on('drawend', async (event) => {
                 this.store.isDrawingActive = false;
 
-                // On vérifie que l'event et la feature existent bien
                 if (event && event.feature) {
                     const feature = event.feature;
                     const geometry = feature.getGeometry();
 
                     if (geometry) {
                         const coordinates = geometry.getCoordinates();
+                        const firstPoint = coordinates[0];
+                        const lastPoint = coordinates[coordinates.length - 1];
 
-                        // Création de l'objet selon votre structure
-                        const nouvelleTrace = {
-                            name: this.store.tempTraceName || "Tracé sans nom",
-                            geometry: coordinates,
-                            h_start_m: 0,
-                            h_end_m: 0,
-                            length_m: 0,
-                            elevation_difference_m: 0,
-                            positive_elevation_m: 0,
-                            negative_elevation_m: 0
-                        };
+                        try {
+                            // 1. Fetch Elevations from Swisstopo
+                            const startHeight = await swisstopoService.getPointHeight(firstPoint[0], firstPoint[1]);
+                            const endHeight = await swisstopoService.getPointHeight(lastPoint[0], lastPoint[1]);
+                            const profileZValues = await swisstopoService.getLineProfile(coordinates);
 
-                        // Ajout au store Pinia
-                        this.store.addTrace(nouvelleTrace);
-                        console.log("Géométrie capturée :", coordinates);
+                            // 2. Geometric Calculations
+                            const totalLength = geoUtils.calculateTotalLength(coordinates);
+                            const gains = geoUtils.calculateElevationGains(profileZValues);
+                            const elevationDifference = endHeight - startHeight;
+
+                            // 3. Create the Trace Object
+                            const newTrace = {
+                                id: Date.now(), // ID temporaneo unico
+                                name: this.store.tempTraceName || "New Trace",
+                                geometry: coordinates,
+                                h_start_m: startHeight,
+                                h_end_m: endHeight,
+                                length_m: totalLength,
+                                elevation_difference_m: elevationDifference,
+                                positive_elevation_m: gains.positiveElevationGain,
+                                negative_elevation_m: gains.negativeElevationGain
+                            };
+
+                            // 4. Store the data
+                            this.store.addTrace(newTrace);
+
+                        } catch (error) {
+                            console.error("Error calculating trace properties:", error);
+                        }
                     }
                 }
 
-                // ON SORT DU MODE DESSIN :
-                // On retire les interactions pour que le curseur redevienne normal
-                // et qu'on ne puisse pas recommencer une deuxième ligne immédiatement.
+                // Exit drawing mode
                 setTimeout(() => {
                     this.instanceCarte.removeInteraction(this.interactionDraw);
                     this.instanceCarte.removeInteraction(this.interactionSnap);
@@ -217,18 +297,18 @@ export default {
             // Couche d'arrière plan
             const coucheFondActive = this.store.backgroundLayers.find(couche => couche.active);
             if (coucheFondActive) {
-                this.addLayerOnMap(coucheFondActive.wmts, 1);
+                this.addLayerOnMap(coucheFondActive.wmts, 1, false);
             }
             //Couches supplémentaires
             this.store.extraLayers.forEach(coucheExtra => {
                 if (coucheExtra.active) {
                     const opacite = coucheExtra.opacity !== undefined ? coucheExtra.opacity : 1;
-                    this.addLayerOnMap(coucheExtra.wmts, opacite);
+                    this.addLayerOnMap(coucheExtra.wmts, opacite, true);
                 }
             });
         },
 
-        addLayerOnMap(identifiantWmts, valeurOpacite) {
+        addLayerOnMap(identifiantWmts, valeurOpacite, isExtraLayer) {
             const optionsSource = optionsFromCapabilities(this.donneesCapabilities, {
                 layer: identifiantWmts,
                 matrixSet: 'EPSG:2056',
@@ -237,10 +317,15 @@ export default {
                 source: new WMTS(optionsSource),
                 opacity: valeurOpacite
             });
-            this.instanceCarte.getLayers().insertAt(0, nouvelleCouche);
+            if (isExtraLayer) {
+                const totalLayers = this.instanceCarte.getLayers().getLength();
+                this.instanceCarte.getLayers().insertAt(totalLayers - 1, nouvelleCouche);
+            } else {
+                this.instanceCarte.getLayers().insertAt(0, nouvelleCouche);
+            }
         },
 
-        flyToTrace(traceId){
+        flyToTrace(traceId) {
             const trace = this.store.traces.find(t => t.id === traceId);
             if (!trace || !trace.geometry.length) return;
 
@@ -248,10 +333,10 @@ export default {
             const lons = coordinates.map(c => c[0]);
             const lats = coordinates.map(c => c[1]);
             const extent = [
-              Math.min(...lons),
-              Math.min(...lats),
-              Math.max(...lons),
-              Math.max(...lats)
+                Math.min(...lons),
+                Math.min(...lats),
+                Math.max(...lons),
+                Math.max(...lats)
             ];
 
             this.instanceCarte.getView().fit(extent, {
@@ -309,5 +394,16 @@ export default {
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Pour le popup aide creation trace */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

@@ -149,8 +149,8 @@ export default {
         this.viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // Limites de zoom et caméra
-        this.viewer.scene.screenSpaceCameraController.minimumZoomDistance = 150;
-        this.viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000;
+        this.viewer.scene.screenSpaceCameraController.minimumZoomDistance = 100;
+        this.viewer.scene.screenSpaceCameraController.maximumZoomDistance = 400000;
         this.viewer.scene.globe.cartographicLimitRectangle = Rectangle.fromDegrees(...this.swissBounds);
 
 

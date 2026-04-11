@@ -11,25 +11,14 @@ export const usestore = defineStore('trace', {
       traces: savedTraces ? JSON.parse(savedTraces) : [
         {
           id: 1,
-          name: 'Trace TEST 1',
-          geometry: [[2533000, 1152000], [2534000, 1153000], [2535000, 1152500]],
-          h_start_m: 450.5,
-          h_end_m: 510.2,
-          length_m: 1540,
-          elevation_difference_m: 59.7,
-          positive_elevation_m: 75.0,
-          negative_elevation_m: 15.3
-        },
-        {
-          id: 2,
-          name: 'Trace TEST 2',
-          geometry: [[2533000, 1152000, 0], [2534000, 1153000, 100], [2535000, 1152500, 50]],
-          h_start_m: 450.5,
-          h_end_m: 510.2,
-          length_m: 1540,
-          elevation_difference_m: 59.7,
-          positive_elevation_m: 75.0,
-          negative_elevation_m: 15.3
+          name: 'Trace TEST',
+          geometry: [[2562260.410, 1206282.600], [2562117.386, 1208180.511], [2563120.505, 1210183.038]],
+          h_start_m: 639.3,
+          h_end_m: 833.9,
+          length_m: 4140,
+          elevation_difference_m: 194.6,
+          positive_elevation_m: 511.8,
+          negative_elevation_m: 317.2
         }
       ],
 
@@ -95,6 +84,25 @@ export const usestore = defineStore('trace', {
       this.saveToBrowser()
     },
 
+
+    updateTraceData(id, updatedFields) {
+      const index = this.traces.findIndex(trace => trace.id === id);
+
+      if (index !== -1) {
+
+        this.traces[index] = {
+          ...this.traces[index],
+          ...updatedFields
+        };
+
+        this.saveToBrowser();
+
+        console.log(`Store: Trace ${id} updated and saved to localStorage.`);
+      } else {
+        console.warn(`Store: Trace with id ${id} not found.`);
+      }
+    },
+
     // Funzione per scrivere nel localStorage
     saveToBrowser() {
       localStorage.setItem('my_traces', JSON.stringify(this.traces))
@@ -110,7 +118,7 @@ export const usestore = defineStore('trace', {
     selectTrace(id) {
       // Se clicco lo stesso ID, lo resetto un istante per forzare il watcher 
       if (this.selectedTraceId === id) {
-        this.selectedTraceId = null; 
+        this.selectedTraceId = null;
         setTimeout(() => {
           this.selectedTraceId = id;
         }, 10);
@@ -144,13 +152,13 @@ export const usestore = defineStore('trace', {
     },
 
     changeZoom(plusOrMinus) {
-        if (plusOrMinus === '+') {
-          this.cameraPosition.height *= 0.7
-          this.cameraPosition.zoom += 1
-        } else if (plusOrMinus === '-') {
-          this.cameraPosition.height *= 1.3
-          this.cameraPosition.zoom -= 1
-        }
+      if (plusOrMinus === '+') {
+        this.cameraPosition.height *= 0.7
+        this.cameraPosition.zoom += 1
+      } else if (plusOrMinus === '-') {
+        this.cameraPosition.height *= 1.3
+        this.cameraPosition.zoom -= 1
       }
+    }
   }
 })

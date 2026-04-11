@@ -69,7 +69,7 @@ const submitTrace = () => {
   width: 350px;
   border-radius: 22.5px;
   border: 2px solid #1976d2;
-  background-color: #e3f2fdd8;
+  background-color: #daeffde7;
   color: #1976d2;
   padding: 20px;
   text-align: center;
