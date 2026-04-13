@@ -220,7 +220,7 @@ export default {
             this.instanceCarte.addInteraction(this.interactionSnap);
 
             const handleKeyDown = (event) => {
-                if (event.key === 'Delete' || event.key === 'Backspace') {
+                if (event.key === 'Delete') {
                     event.preventDefault();
                     if (this.interactionDraw) {
                         this.interactionDraw.removeLastPoint();
@@ -268,6 +268,8 @@ export default {
 
                             // 4. Store the data
                             this.store.addTrace(newTrace);
+                            this.store.selectedTraceId = newTrace.id;
+                            this.store.isSidebarInfoOpen = true;
 
                         } catch (error) {
                             console.error("Error calculating trace properties:", error);

@@ -29,7 +29,7 @@
         <span class="label">Différence d'altitude</span>
         <span class="value">{{ store.selectedTrace.elevation_difference_m.toFixed(1) }} m</span>
       </div>
-      
+
 
       <div class="info-item dual-row">
         <div class="dual-col">
@@ -82,9 +82,14 @@ watch(
       chartInstance.destroy()
     }
 
+
     const geometry = trace.geometry
     const zValues = await swisstopoService.getLineProfile(geometry)
-    const points = zValues.map((z, i) => ({ x: i, y: z }))
+
+    const totalDistanceKm = trace.length_m / 1000;
+    const totalPoints = zValues.length;
+
+    const points = zValues.map((z, i) => ({ x: (i * totalDistanceKm) / (totalPoints - 1), y: z }))
     console.log("zVALUE",zValues)
 
     chartInstance = new Chart(altitudeCanvas.value, {
@@ -97,7 +102,7 @@ watch(
           borderColor: 'blue',
           tension: 0.2,
           pointRadius: 1,          // taille normale
-          pointHoverRadius: 7,     // au survol    
+          pointHoverRadius: 7,     // au survol
         }
       ]
     },
@@ -109,7 +114,7 @@ watch(
           type: 'linear',
           title: {
             display: true,
-            text: 'Distance (points)'
+            text: 'Distance (km)'
           }
         },
         y: {
@@ -127,10 +132,10 @@ watch(
           enabled: true,
           callbacks: {
             title: function(context) {
-              return `Distance parcourue : ${100*context[0].parsed.x/200+1} %`
+              return `Distance : ${context[0].parsed.x.toFixed(1)} km`
             },
             label: function(context) {
-              return `Altitude : ${context.parsed.y} m`
+              return `Altitude : ${context.parsed.y.toFixed(0)} m`
             }
           }
         }
