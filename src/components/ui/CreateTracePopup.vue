@@ -9,21 +9,22 @@
 
       <div class="form-group">
         <label for="trace-name">Nom :</label>
-        <input
-          id="trace-name"
-          type="text"
-          v-model="traceName"
-          placeholder="Entrez le nom du tracé"
-        />
+        <input id="trace-name" type="text" v-model="traceName" placeholder="Entrez le nom du tracé" />
       </div>
 
+      <input type="file" ref="fileInput" style="display: none" accept=".gpx" @change="handleFileSelect" />
+
       <div class="import-zone">
-        <p>Optionnel : importez un fichier GPX pour créer le tracé</p>
-        <div class="drop-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#a0c4ff">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-          </svg>
-          <span>GPX</span>
+        <p v-if="!selectedFile">Optionnel : importez un fichier GPX pour créer le tracé</p>
+        <p v-else style="color: #2e7d32; font-weight: bold;">✅ {{ selectedFile.name }}</p>
+
+        <div class="icon-container">
+          <div class="drop-icon" @click="$refs.fileInput.click()">
+            <svg width="40" height="40" viewBox="0 0 24 24" class="gpx-svg">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+            </svg>
+            <span>GPX</span>
+          </div>
         </div>
       </div>
 
@@ -37,20 +38,66 @@
 <script setup>
 import { ref } from 'vue';
 import { usestore } from '@/stores/store'
+import { geoUtils } from '@/services/geoUtils'
+import { swisstopoService } from '@/services/swisstopo'
+
 const store = usestore();
+const traceName = ref('TEST');
+const selectedFile = ref(null);
+const emit = defineEmits(['close']);
 
-const traceName = ref('TEST'); // Valeur par défaut visible sur le schéma [cite: 12]
-const emit = defineEmits(['close', 'confirm']);
-
-const submitTrace = () => {
-  store.triggerDraw(traceName.value);
-  emit('close');
+// Gestisce la selezione del file
+const handleFileSelect = (event) => {
+  const file = event.target.files[0];
+  if (file) selectedFile.value = file;
 };
 
+const submitTrace = async () => {
+  if (selectedFile.value) {
+    // Se c'è un file, importa
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const text = e.target.result;
+        const coordinates = await geoUtils.parseGPX(text);
 
+        // Dati da Swisstopo
+        const profileZValues = await swisstopoService.getLineProfile(coordinates);
+        const totalLength = geoUtils.calculateTotalLength(coordinates);
+        const gains = geoUtils.calculateElevationGains(profileZValues);
+
+        if (!profileZValues || profileZValues.length === 0) {
+          alert("Impossible de récupérer les données d'altitude pour ce tracé.");
+          return;
+        }
+
+        store.addTrace({
+          id: Date.now(),
+          name: traceName.value,
+          geometry: coordinates,
+          h_start_m: profileZValues[0],
+          h_end_m: profileZValues[profileZValues.length - 1],
+          length_m: totalLength,
+          elevation_difference_m: parseFloat((profileZValues[profileZValues.length - 1] - profileZValues[0]).toFixed(1)),
+          positive_elevation_m: gains.positiveElevationGain,
+          negative_elevation_m: gains.negativeElevationGain
+        });
+        emit('close');
+      } catch (err) {
+        alert("Erreur GPX");
+      }
+    };
+    reader.readAsText(selectedFile.value);
+  } else {
+    // Altrimenti disegno manuale
+    store.triggerDraw(traceName.value);
+    emit('close');
+  }
+};
 </script>
 
 <style scoped>
+/* --- Overlay e Contenitore Principale --- */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -67,23 +114,24 @@ const submitTrace = () => {
 .popup-content {
   position: relative;
   width: 350px;
-  border-radius: 22.5px;
+  padding: 20px;
   border: 2px solid #1976d2;
+  border-radius: 22.5px;
   background-color: #daeffde7;
   color: #1976d2;
-  padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   font-weight: 600;
 }
 
+/* --- Header e Testi --- */
 header h3 {
   color: #1976d2;
   font-size: 24px;
-  margin-bottom: 20px;
-  margin-top: 10px;
+  margin: 10px 0 20px 0;
 }
 
+/* --- Form e Input Nome --- */
 .form-group {
   display: flex;
   align-items: center;
@@ -93,18 +141,20 @@ header h3 {
 
 input {
   flex-grow: 1;
-  border-radius: 15px;
-  border: 1px solid #a0c4ff;
   padding: 5px 15px;
+  border: 1px solid #a0c4ff;
+  border-radius: 15px;
   background-color: #ffffff;
+  outline: none;
 }
 
+/* --- Zona Importazione GPX --- */
 .import-zone {
+  margin-bottom: 20px;
+  padding: 15px;
   border: 1px solid #a0c4ff;
   border-radius: 15px;
-  padding: 15px;
   background-color: #f8faff;
-  margin-bottom: 20px;
 }
 
 .import-zone p {
@@ -113,49 +163,90 @@ input {
   margin-bottom: 10px;
 }
 
+/* --- Logica Bottone GPX (Area cliccabile limitata) --- */
+.icon-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .drop-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-weight: bold;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
   color: #a0c4ff;
+  /* Colore base testo */
+  width: fit-content;
+  padding: 5px 12px;
+  border-radius: 10px;
+}
+
+.gpx-svg {
+  fill: #a0c4ff;
+  /* Colore base icona */
+  transition: fill 0.2s ease;
+}
+
+.drop-icon span {
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+
+/* --- Effetto Hover Combinato (Icona + Testo) --- */
+.drop-icon:hover {
+  color: #1976d2;
+  /* Il testo diventa blu scuro */
+}
+
+.drop-icon:hover .gpx-svg {
+  fill: #1976d2;
+  /* L'icona diventa blu scura */
+}
+
+/* --- Bottoni Azione e Footer --- */
+.popup-actions {
+  display: flow-root;
+  /* Alternativa moderna al clearfix per il float */
+  margin-top: 10px;
 }
 
 .btn-create {
-  background-color: #755edd;
+  float: right;
+  padding: 8px 30px;
   border: none;
   border-radius: 15px;
-  padding: 8px 30px;
+  background-color: #755edd;
   color: white;
-  font-weight: bold;
-  cursor: pointer;
-  float: right;
   font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .btn-create:hover {
   background-color: #563cc7;
 }
 
-
-
+/* --- Pulsante Chiudi (X) --- */
 .close-btn {
   position: absolute;
   top: 10px;
   right: 15px;
-  background: none;
+  padding: 5px;
   border: none;
+  background: none;
+  color: #666;
   font-size: 1.4rem;
   font-weight: bold;
-  color: #666;
-  cursor: pointer;
-  padding: 5px;
   line-height: 1;
-  transition: color 0.2s;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .close-btn:hover {
-  color: #ff0000; /* Rappel de la couleur de ta bordure au survol */
+  color: #ff0000;
 }
-
 </style>
