@@ -33,16 +33,21 @@ h2 {
 }
 
 .sidebar {
-  width: 200px;
-  background-color: #bbdefb;
+  position: absolute;
+  width: 400px;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 499;
+  background-color: #daeffde7;
   padding: 20px;
   padding-top: 60px;
-  height: 100vh;
   overflow-y: auto;
   box-sizing: border-box;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   transition: transform 0.3s ease-in-out;
+  /*transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);*/
 }
 
 .sidebar.is-closed {

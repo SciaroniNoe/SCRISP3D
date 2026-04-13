@@ -93,63 +93,63 @@ watch(
     //console.log("zVALUE",zValues)
 
     chartInstance = new Chart(altitudeCanvas.value, {
-    type: 'line',
-    data: {
-      datasets: [
-        {
-          label: 'Altitude',
-          data: points,
-          borderColor: 'blue',
-          tension: 0.2,
-          pointRadius: 1,          // taille normale
-          pointHoverRadius: 7,     // au survol
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {
-          type: 'linear',
-          title: {
-            display: true,
-            text: 'Distance (km)'
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Altitude',
+            data: points,
+            borderColor: 'blue',
+            tension: 0.2,
+            pointRadius: 1,          // taille normale
+            pointHoverRadius: 7,     // au survol
           }
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Altitude (m)'
-          }
-        }
+        ]
       },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          enabled: true,
-          callbacks: {
-            title: function(context) {
-              return `Distance : ${context[0].parsed.x.toFixed(1)} km`
-            },
-            label: function(context) {
-              return `Altitude : ${context.parsed.y.toFixed(0)} m`
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: 'Distance (km)'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Altitude (m)'
             }
           }
-        }
-      },
-      onHover: (event, elements) => {
-        if (elements.length > 0) {
-          const pointIndex = elements[0].index
-          store.hoveredPointIndex = pointIndex
-        } else {
-          store.hoveredPointIndex = null
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              title: function (context) {
+                return `Distance : ${context[0].parsed.x.toFixed(1)} km`
+              },
+              label: function (context) {
+                return `Altitude : ${context.parsed.y.toFixed(0)} m`
+              }
+            }
+          }
+        },
+        onHover: (event, elements) => {
+          if (elements.length > 0) {
+            const pointIndex = elements[0].index
+            store.hoveredPointIndex = pointIndex
+          } else {
+            store.hoveredPointIndex = null
+          }
         }
       }
-    }
-  })
+    })
   },
   { immediate: true }
 )
@@ -166,16 +166,24 @@ h2 {
 }
 
 .sidebarInfo {
-  width: 200px;
-  background-color: #cbe9ff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 100%;
+  z-index: 501;
+  background-color: #e3f2fd;
   padding: 20px;
   padding-top: 60px;
-  height: 100vh;
   overflow-y: auto;
   box-sizing: border-box;
   transition: all 0.3s ease;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+}
+
+.sidebarInfo.is-closed {
+  transform: translateX(-100%);
 }
 
 .info-container {
@@ -279,6 +287,6 @@ h2 {
   background-color: white;
   border: 1px solid #1976d2;
   border-radius: 6px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 </style>

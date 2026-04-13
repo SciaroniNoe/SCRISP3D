@@ -39,45 +39,13 @@ const store = usestore()
   position: relative;
 }
 
-.floating-sidebarinfo {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 400px;
-  z-index: 501;
-  background: #e3f2fd;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease-in-out;
-}
-
-.floating-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 400px;
-  z-index: 499;
-  background: #daeffde7;
-  /*border-right: 2px solid #1976d2;*/
-  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-}
-
-/* Quando è chiusa, la sidebar scivola fuori dallo schermo a sinistra */
-.floating-sidebar.is-closed {
-  transform: translateX(-100%);
-}
-.floating-sidebarinfo.is-closed {
-  transform: translateX(-100%);
-}
-
 .main-content {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1; /* La mappa sta sotto tutto */
+  z-index: 1;
 }
 
 .burger-btn {
@@ -86,7 +54,7 @@ const store = usestore()
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000; /* Il livello più alto di tutti */
+  z-index: 1000;
   background: #1976d2;
   color: white;
   border: none;
