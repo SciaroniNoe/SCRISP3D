@@ -3,13 +3,13 @@
     <div class="info-box-content">
       <h3 class="info-title">Instructions</h3>
       <ul class="info-list">
-        <li><strong>Clic gauche :</strong> Ajouter un sommet</li>
+        <li><strong>Clic gauche :</strong> Ajouter un point</li>
         <li><strong>Double-clic :</strong> Terminer le tracé</li>
         <li><strong>Delete :</strong> Annuler le dernier point</li>
         <hr class="separator" />
-        <li><strong>Glisser un sommet :</strong> Modifier la position</li>
-        <li><strong>Glisser le point milieu :</strong> Ajouter un nouveau sommet</li>
-        <li><strong>Alt + Clic :</strong> Supprimer un sommet</li>
+        <li><strong>Glisser un point :</strong> Modifier la position</li>
+        <li><strong>Glisser le point milieu :</strong> Ajouter un nouveau point</li>
+        <li><strong>Alt + Clic :</strong> Supprimer un point</li>
       </ul>
     </div>
   </div>
