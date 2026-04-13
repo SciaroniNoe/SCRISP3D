@@ -90,7 +90,7 @@ watch(
     const totalPoints = zValues.length;
 
     const points = zValues.map((z, i) => ({ x: (i * totalDistanceKm) / (totalPoints - 1), y: z }))
-    console.log("zVALUE",zValues)
+    //console.log("zVALUE",zValues)
 
     chartInstance = new Chart(altitudeCanvas.value, {
     type: 'line',

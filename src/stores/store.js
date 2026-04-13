@@ -97,7 +97,7 @@ export const usestore = defineStore('trace', {
 
         this.saveToBrowser();
 
-        console.log(`Store: Trace ${id} updated and saved to localStorage.`);
+        //console.log(`Store: Trace ${id} updated and saved to localStorage.`);
       } else {
         console.warn(`Store: Trace with id ${id} not found.`);
       }

@@ -250,7 +250,6 @@ export default {
       // Si c'est actif mais le tileset n'existe pas encore:
       if (isActive && !this.swissBuildings) {
         try {
-          console.log("Chargement initial des bâtiments 3D...");
           this.swissBuildings = await Cesium.Cesium3DTileset.fromUrl(
             "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json"
           );

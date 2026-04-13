@@ -40,14 +40,13 @@ h2 {
   height: 100vh;
   overflow-y: auto;
   box-sizing: border-box;
-  transition: all 0.3s ease;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  transition: transform 0.3s ease-in-out;
 }
 
 .sidebar.is-closed {
-  margin-left: -240px;
-  opacity: 0;
+  transform: translateX(-100%);
 }
 
 .trace-button {

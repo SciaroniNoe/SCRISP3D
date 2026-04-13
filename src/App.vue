@@ -61,7 +61,6 @@ const store = usestore()
   background: #daeffde7;
   /*border-right: 2px solid #1976d2;*/
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease-in-out;
 }
 
 /* Quando è chiusa, la sidebar scivola fuori dallo schermo a sinistra */

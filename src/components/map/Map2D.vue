@@ -199,7 +199,7 @@ export default {
 
         // Cette méthode est liée à votre bouton @click="submitTrace"
         submitTrace() {
-            console.log("Mode tracé activé");
+            //console.log("Mode tracé activé");
             this.reinitialiserInteractions();
         },
 

@@ -53,7 +53,7 @@ export const swisstopoService = {
             const url = `${BASE_URL}/profile.json?${params.toString()}`;
 
             const response = await fetch(url);
-            console.log(response)
+            //console.log("response", response)
             if (!response.ok) {
                 throw new Error(`Erreur Profil API: ${response.status}`);
             }
@@ -64,7 +64,7 @@ export const swisstopoService = {
              * L'API renvoie un tableau d'objets :
              * [ { "alts": {"DTM25": 550.1}, "dist": 0, "x": 2600, "y": 1200 }, ... ]
              */
-            console.log(data.map(point => point.alts?.COMB ?? null))
+            //console.log(data.map(point => point.alts?.COMB ?? null))
             return data.map(point => point.alts?.COMB ?? null)
         } catch (error) {
             console.error("Erreur lors de la récupération du profil:", error);
