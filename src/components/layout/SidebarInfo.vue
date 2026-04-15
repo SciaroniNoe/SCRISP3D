@@ -99,7 +99,7 @@ watch(
           {
             label: 'Altitude',
             data: points,
-            borderColor: 'blue',
+            borderColor: '#ff0000',
             tension: 0.2,
             pointRadius: 1,          // taille normale
             pointHoverRadius: 7,     // au survol
@@ -130,6 +130,7 @@ watch(
           },
           tooltip: {
             enabled: true,
+            displayColors: false,
             callbacks: {
               title: function (context) {
                 return `Distance : ${context[0].parsed.x.toFixed(1)} km`
