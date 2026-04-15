@@ -1,6 +1,6 @@
 # SCRISP3D
 
-SCRISP3D est une application web interactive développée dans le cadre du Master MDT pour le module Géoinformatique opérationnelle. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données topographiques officielles de SwissTopo.
+SCRISP3D est une application web interactive développée dans le cadre du Master MDT pour le module Géoinformatique opérationnelle. L'application permet de visualiser, créer et gérer des tracés géographiques en utilisant les données officielles de SwissTopo.
 
 ## Ce projet a été développé par :
 - **Sciaroni Noè**  
@@ -8,17 +8,16 @@ SCRISP3D est une application web interactive développée dans le cadre du Maste
 - **Spoerri Nicolas**  
 
 ## Fonctionnalités
-- Cartographie 2D/3D : Visualisation avec OpenLayers et intégration prévue pour le 3D (Cesium).
+- Cartographie 2D/3D : Visualisation avec OpenLayers (2D) et Cesium (3D).
 - Gestion des Tracés : Interface intuitive pour lister, sélectionner et analyser des itinéraires.
 - Données Officielles : Intégration complète des services WMTS de SwissTopo.
 - Interface Responsive : Sidebar escamotable (Menu Burger) permettant de maximiser l'espace de travail sur la carte.
 
 ## Technologies Utilisées
-- Framework : Vue.js 3 (Composition API)
+- Framework : Vue.js 3
 - Build Tool : Vite
-- Gestion d'État : Pinia (pour la synchronisation globale des données)
-- Cartographie : OpenLayers
-- Styles : CSS3 & Bootstrap 5
+- Gestion d'État : Pinia (store - pour la synchronisation globale des données)
+- Cartographie : OpenLayers (2D) et Cesium (3D)
 
 ## Installation et Lancement
 

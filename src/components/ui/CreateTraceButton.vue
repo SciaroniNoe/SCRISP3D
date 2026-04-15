@@ -1,5 +1,9 @@
 <template>
-  <div class="button-container" :class="{ 'is-shifted': isShifted }">
+  <div 
+    v-if="!store.isDrawingActive" 
+    class="button-container" 
+    :class="{ 'is-shifted': isShifted }"
+  >
     <button class="create-trace-btn" @click="handleCreate">
       Créer un tracé
     </button>
@@ -9,13 +13,14 @@
 <script setup>
 import { usestore } from '@/stores/store'
 const store = usestore()
-// On définit la prop reçue du parent
+// On définit la propriete isShifted du parent
 defineProps({
   isShifted: Boolean
 });
 
 const emit = defineEmits(['trigger-create']);
 
+// Quand on clique sur le bouton, on va en mode création et on affiche le popup
 const handleCreate = () => {
   store.is3dMode = false;
   emit('trigger-create');

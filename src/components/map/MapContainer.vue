@@ -1,3 +1,4 @@
+<!-- Permet de switcher entre la carte 2D et 3D -->
 <template>
   <div class="container-2d-3d">
     <Map2D v-if="!store.is3dMode" />

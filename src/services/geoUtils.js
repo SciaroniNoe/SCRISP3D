@@ -1,9 +1,8 @@
 import { GPX } from 'ol/format';
 
 export const geoUtils = {
-  /**
-   * Calculates the total planimetric length of a coordinate array
-   */
+
+  //Calcule la longueur totale d'une trace à partir de ses coordonnées (en 2D)
   calculateTotalLength(coordinates) {
     let totalLength = 0;
     for (let i = 0; i < coordinates.length - 1; i++) {
@@ -18,9 +17,7 @@ export const geoUtils = {
     return totalLength;
   },
 
-  /**
-   * Calculates cumulative positive and negative elevation gains from a profile
-   */
+  //Calcule le denivelé positif et négatif à partir d'une liste de valeurs d'altitude
   calculateElevationGains(zValues) {
     let positiveElevationGain = 0;
     let negativeElevationGain = 0;
@@ -34,23 +31,17 @@ export const geoUtils = {
         negativeElevationGain += Math.abs(difference);
       }
     }
-
     return {
       positiveElevationGain,
       negativeElevationGain
     };
   },
 
-
-
-
-// ... all'interno dell'oggetto geoUtils
 async parseGPX(fileContent) {
     const format = new GPX();
-    // Leggiamo tutte le features (punti e linee)
+
     const allFeatures = format.readFeatures(fileContent);
     
-    // Cerchiamo la feature che è una linea (il tracciato vero e proprio)
     const trackFeature = allFeatures.find(f => 
         f.getGeometry().getType() === 'LineString' || 
         f.getGeometry().getType() === 'MultiLineString'
@@ -62,13 +53,10 @@ async parseGPX(fileContent) {
 
     const geometry = trackFeature.getGeometry();
     
-    // Trasformiamo le coordinate da GPS (4326) a Svizzere (2056)
-    // Se è una MultiLineString, prendiamo solo la prima linea
+    // On transforme les coordonnées en MN95 et on nettoie les données pour l'API
     const coords2056 = geometry.getType() === 'MultiLineString' 
         ? geometry.getLineString(0).transform('EPSG:4326', 'EPSG:2056').getCoordinates()
         : geometry.transform('EPSG:4326', 'EPSG:2056').getCoordinates();
-
-    // Pulizia coordinate: prendiamo solo X e Y (evitiamo Z o Time se presenti)
-    return coords2056.map(c => [c[0], c[1]]);
+    return coords2056.map(coo => [coo[0], coo[1]]);
 }
 };

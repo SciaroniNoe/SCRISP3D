@@ -22,7 +22,7 @@
   right: 20px;
   z-index: 1000;
   width: 350px;
-  pointer-events: none; /* Permet de cliquer à travers si nécessaire */
+  pointer-events: none; /* Permet de cliquer à travers le infoBox si nécessaire */
 }
 
 .info-box-content {

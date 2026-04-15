@@ -16,13 +16,16 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities.js';
 import TileLayer from 'ol/layer/Tile.js';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS.js';
 import Projection from 'ol/proj/Projection.js'
-import proj4 from "proj4";
+import Point from 'ol/geom/Point.js';
 import { register } from "ol/proj/proj4";
+
+import proj4 from "proj4";
+
 import { usestore } from '@/stores/store';
 import { geoUtils } from '@/services/geoUtils';
 import { swisstopoService } from '@/services/swisstopo';
+
 import InfoBoxEndTrace from '@/components/ui/InfoBoxEndTrace.vue';
-import Point from 'ol/geom/Point.js';
 
 // Imports pour le dessin
 import VectorSource from 'ol/source/Vector.js';
@@ -56,13 +59,14 @@ export default {
         this.initialiserCarte();
     },
     watch: {
-        // Surveille le déclencheur de dessin dans le store
+        // Surveille le trigger de dessin dans le store pour activer le mode dessin
         'store.drawingTrigger'() {
             if (this.store.isDrawingActive) {
                 this.reinitialiserInteractions();
             }
         },
-        // Check les changements de couches dans le store
+
+        // Surveille les changements de couches dans le store
         'store.backgroundLayers': {
             handler() { this.updateLayerMap(); },
             deep: true
@@ -71,10 +75,13 @@ export default {
             handler() { this.updateLayerMap(); },
             deep: true
         },
+
+        // Surveille le zoom de la caméra dans le store pour adapter la vue de la carte (ex. button + et -)
         'store.cameraPosition.zoom'(newZoom) {
             const view = this.instanceCarte.getView();
             view.setZoom(newZoom);
         },
+
         'store.selectedTraceId': {
             handler(newId) {
                 if (newId) {
@@ -82,6 +89,7 @@ export default {
                 }
             }
         },
+
         'store.traces': {
             handler() {
                 if (this.isInternalUpdate) {
@@ -92,8 +100,9 @@ export default {
             },
             deep: true
         },
-        'store.hoveredPointIndex'(newIndex) {
-            this.updateCursorPosition(newIndex);
+
+        'store.hoveredPointIndex'(mousePositionInProfile) {
+            this.updateCursorPosition(mousePositionInProfile);
         }
     },
     methods: {
@@ -116,7 +125,7 @@ export default {
             });
 
             this.sourceVecteur = new VectorSource();
-            const coucheVecteur = new VectorLayer({
+            const layerVector = new VectorLayer({
                 source: this.sourceVecteur,
                 style: {
                     'stroke-color': '#ff0000',
@@ -125,15 +134,15 @@ export default {
             });
 
             this.sourceCurseur = new VectorSource();
-            const coucheCurseur = new VectorLayer({
+            const layerMousePositionProfileOnMap = new VectorLayer({
                 source: this.sourceCurseur,
                 style: {
                     'circle-radius': 7,
-                    'circle-fill-color': '#ff0000', // Rosso
-                    'circle-stroke-color': '#ffffff', // Bordo bianco per visibilità
+                    'circle-fill-color': '#ff0000',
+                    'circle-stroke-color': '#ffffff',
                     'circle-stroke-width': 2,
                 },
-                zIndex: 999 // Assicuriamoci che sia sopra a tutto
+                zIndex: 999
             });
 
             fetch('https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?lang=fr')
@@ -143,7 +152,7 @@ export default {
 
                     this.instanceCarte = new Map({
                         target: this.$refs.map2D,
-                        layers: [coucheVecteur, coucheCurseur],
+                        layers: [layerVector, layerMousePositionProfileOnMap],
                         view: new View({
                             projection: projectionSuisse,
                             extent: mapExtent,
@@ -153,11 +162,11 @@ export default {
                         controls: [],
                     });
 
-                    // 1. Initialisation de l'interaction de modification
+                    // Initialisation de l'interaction de modification
                     this.interactionModify = new Modify({ source: this.sourceVecteur });
                     this.instanceCarte.addInteraction(this.interactionModify);
 
-                    // 2. Événement déclenché à la fin d'une modification (déplacement de sommet)
+                    // on attend la fin de la modification pour mettre à jour les données du trace modifiée dans le store
                     this.interactionModify.on('modifyend', async (event) => {
                         const modifiedFeatures = event.features.getArray();
 
@@ -215,28 +224,26 @@ export default {
                 });
         },
 
-        // Cette méthode est liée à votre bouton @click="submitTrace"
-        submitTrace() {
-            //console.log("Mode tracé activé");
-            this.reinitialiserInteractions();
-        },
-
         reinitialiserInteractions() {
+            this.store.isDrawingActive = true;
             // Supprimer les interactions de dessin existantes
             if (this.interactionDraw) this.instanceCarte.removeInteraction(this.interactionDraw);
             if (this.interactionSnap) this.instanceCarte.removeInteraction(this.interactionSnap);
 
-
+            // Instancie et ajoute à la carte l'interaction permettant de dessiner des géométries
             this.interactionDraw = new Draw({
                 source: this.sourceVecteur,
                 type: this.typeTrace,
             });
             this.instanceCarte.addInteraction(this.interactionDraw);
 
-            // Le Snap permet de "coller" les points aux bords existants (très pratique)
-            this.interactionSnap = new Snap({ source: this.sourceVecteur });
+            // Permet de coller les points aux sommets d'un trace existants
+            this.interactionSnap = new Snap({
+                source: this.sourceVecteur,
+            });
             this.instanceCarte.addInteraction(this.interactionSnap);
 
+            // Pour supprimer le dernier point dessiné (del)
             const handleKeyDown = (event) => {
                 if (event.key === 'Delete') {
                     event.preventDefault();
@@ -245,9 +252,9 @@ export default {
                     }
                 }
             };
-
             window.addEventListener('keydown', handleKeyDown);
 
+            // Quand le dessin est terminé, on récupère la géométrie
             this.interactionDraw.on('drawend', async (event) => {
                 this.store.isDrawingActive = false;
 
@@ -261,19 +268,16 @@ export default {
                         const lastPoint = coordinates[coordinates.length - 1];
 
                         try {
-                            // 1. Fetch Elevations from Swisstopo
                             const startHeight = await swisstopoService.getPointHeight(firstPoint[0], firstPoint[1]);
                             const endHeight = await swisstopoService.getPointHeight(lastPoint[0], lastPoint[1]);
                             const profileZValues = await swisstopoService.getLineProfile(coordinates);
 
-                            // 2. Geometric Calculations
                             const totalLength = geoUtils.calculateTotalLength(coordinates);
                             const gains = geoUtils.calculateElevationGains(profileZValues);
                             const elevationDifference = endHeight - startHeight;
 
-                            // 3. Create the Trace Object
                             const newTrace = {
-                                id: Date.now(), // ID temporaneo unico
+                                id: Date.now(),
                                 name: this.store.tempTraceName || "New Trace",
                                 geometry: coordinates,
                                 h_start_m: startHeight,
@@ -284,10 +288,10 @@ export default {
                                 negative_elevation_m: gains.negativeElevationGain
                             };
 
-                            // 4. Store the data
                             this.store.addTrace(newTrace);
                             this.store.selectedTraceId = newTrace.id;
                             this.store.isSidebarInfoOpen = true;
+                            this.store.isSidebarOpen = true;
 
                         } catch (error) {
                             console.error("Error calculating trace properties:", error);
@@ -295,39 +299,40 @@ export default {
                     }
                 }
 
-                // Exit drawing mode
+                // On sort du mode dessin
                 setTimeout(() => {
                     this.instanceCarte.removeInteraction(this.interactionDraw);
                     this.instanceCarte.removeInteraction(this.interactionSnap);
-                }, 100);
+                }, 100); // petit délai pour éviter les conflits avec dernier point cree
             });
         },
 
         updateLayerMap() {
             if (!this.instanceCarte || !this.donneesCapabilities) return;
 
+            // On vide la couche du curseur (le point que se deplace si on est sur le profil)
             if (this.sourceCurseur) {
                 this.sourceCurseur.clear();
             }
-            
-            // On ne vide pas tout, sinon on perd la couche de dessin
-            // On filtre pour ne garder que la couche vectorielle de dessin
+
+            // On supprime toutes les couches WMTS (sans toucher la couche de tracés ni celle du curseur)
             const layers = this.instanceCarte.getLayers().getArray();
-            for (let i = layers.length - 1; i >= 0; i--) {
-                if (layers[i] instanceof TileLayer) {
-                    this.instanceCarte.removeLayer(layers[i]);
+            for (let layerIndex = layers.length - 1; layerIndex >= 0; layerIndex--) {
+                if (layers[layerIndex] instanceof TileLayer) {
+                    this.instanceCarte.removeLayer(layers[layerIndex]);
                 }
             }
+
             // Couche d'arrière plan
-            const coucheFondActive = this.store.backgroundLayers.find(couche => couche.active);
-            if (coucheFondActive) {
-                this.addLayerOnMap(coucheFondActive.wmts, 1, false);
+            const backgroundLayerActive = this.store.backgroundLayers.find(backgroundLayer => backgroundLayer.active);
+            if (backgroundLayerActive) {
+                this.addLayerOnMap(backgroundLayerActive.wmts, 1, false);
             }
             //Couches supplémentaires
-            this.store.extraLayers.forEach(coucheExtra => {
-                if (coucheExtra.active) {
-                    const opacite = coucheExtra.opacity !== undefined ? coucheExtra.opacity : 1;
-                    this.addLayerOnMap(coucheExtra.wmts, opacite, true);
+            this.store.extraLayers.forEach(extraLayer => {
+                if (extraLayer.active) {
+                    const opacite = extraLayer.opacity !== undefined ? extraLayer.opacity : 1;
+                    this.addLayerOnMap(extraLayer.wmts, opacite, true);
                 }
             });
         },
@@ -337,15 +342,15 @@ export default {
                 layer: identifiantWmts,
                 matrixSet: 'EPSG:2056',
             });
-            const nouvelleCouche = new TileLayer({
+            const newLayer = new TileLayer({
                 source: new WMTS(optionsSource),
                 opacity: valeurOpacite
             });
             if (isExtraLayer) {
                 const totalLayers = this.instanceCarte.getLayers().getLength();
-                this.instanceCarte.getLayers().insertAt(totalLayers - 1, nouvelleCouche);
+                this.instanceCarte.getLayers().insertAt(totalLayers - 1, newLayer);
             } else {
-                this.instanceCarte.getLayers().insertAt(0, nouvelleCouche);
+                this.instanceCarte.getLayers().insertAt(0, newLayer);
             }
         },
 
@@ -370,6 +375,7 @@ export default {
             });
         },
 
+        // Affiche les traces dans la carte en créant une feature pour chaque trace et en l'ajoutant à la sourceVecteur
         renderTraces() {
             if (!this.sourceVecteur) return;
 
@@ -386,21 +392,19 @@ export default {
                 this.sourceVecteur.addFeature(feature);
             });
         },
-        updateCursorPosition(index) {
-            // 1. PULIZIA SEMPRE E COMUNQUE
-            // Questo rimuove il puntino rosso dalla mappa
+
+        // Permet de voir un point sur la carte si on a la souris sur le profil
+        updateCursorPosition(mousePositionInProfile) {
+
             if (this.sourceCurseur) {
                 this.sourceCurseur.clear();
             }
 
-            // 2. SE L'INDICE È NULL, CI FERMIAMO QUI
-            // (Il puntino è già stato rimosso sopra, quindi la mappa è pulita)
-            if (index === null || index === undefined) {
+            // Si on est pas sur le profil alors mousePositionInProfile est null
+            if (mousePositionInProfile === null || mousePositionInProfile === undefined) {
                 return;
             }
 
-            // 3. RECUPERO TRACCIA SELEZIONATA
-            // Usiamo una costante locale per sicurezza
             const currentTrace = this.store.selectedTrace;
 
             if (!currentTrace || !currentTrace.geometry || currentTrace.geometry.length < 2) {
@@ -408,20 +412,15 @@ export default {
             }
 
             try {
-                // 4. CREAZIONE GEOMETRIA PER INTERPOLAZIONE
                 const line = new LineString(currentTrace.geometry);
 
-                // 5. CALCOLO PERCENTUALE
-                // Usiamo la lunghezza del profilo salvata nello store (quella di Swisstopo)
-                // Se non esiste ancora, usiamo il numero di punti della geometria come fallback
                 const totalGraphPoints = this.store.currentProfileLength || currentTrace.geometry.length;
 
-                // Evitiamo divisioni per zero
                 if (totalGraphPoints <= 1) return;
 
-                const percentage = index / (totalGraphPoints - 1);
+                const percentage = mousePositionInProfile / (totalGraphPoints - 1);
 
-                // 6. OTTENIAMO LE COORDINATE GPS
+                // on obtient les coo sur le trace en function du purcentage
                 const coordinate = line.getCoordinateAt(percentage);
 
                 if (coordinate) {
@@ -431,12 +430,11 @@ export default {
                     this.sourceCurseur.addFeature(feature);
                 }
             } catch (error) {
-                console.error("Errore nel calcolo della posizione del cursore:", error);
+                console.error("Erreur lors du calcul de la position du curseur: ", error);
             }
         }
     }
 }
-
 </script>
 
 <style scoped>

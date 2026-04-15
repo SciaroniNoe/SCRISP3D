@@ -155,7 +155,6 @@ watch(
           if (elements && elements.length > 0) {
             store.hoveredPointIndex = elements[0].index;
           } else {
-            // SE IL MOUSE NON È SU UN PUNTO, RESETTA!
             store.hoveredPointIndex = null;
           }
         },

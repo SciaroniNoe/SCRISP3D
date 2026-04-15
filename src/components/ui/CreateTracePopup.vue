@@ -46,22 +46,22 @@ const traceName = ref('TEST');
 const selectedFile = ref(null);
 const emit = defineEmits(['close']);
 
-// Gestisce la selezione del file
+// Quand on sélectionne un fichier, on le stocke dans selectedFile
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
   if (file) selectedFile.value = file;
 };
 
+// Quand on clique sur "Créer", on traite le fichier GPX s'il y en a un, sinon on passe en mode dessin manuel
 const submitTrace = async () => {
   if (selectedFile.value) {
-    // Se c'è un file, importa
+    // Si un fichier GPX est sélectionné :
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
         const text = e.target.result;
         const coordinates = await geoUtils.parseGPX(text);
 
-        // Dati da Swisstopo
         const profileZValues = await swisstopoService.getLineProfile(coordinates);
         const totalLength = geoUtils.calculateTotalLength(coordinates);
         const gains = geoUtils.calculateElevationGains(profileZValues);
@@ -71,7 +71,7 @@ const submitTrace = async () => {
           return;
         }
 
-        store.addTrace({
+        const newTrace = {
           id: Date.now(),
           name: traceName.value,
           geometry: coordinates,
@@ -81,7 +81,12 @@ const submitTrace = async () => {
           elevation_difference_m: parseFloat((profileZValues[profileZValues.length - 1] - profileZValues[0]).toFixed(1)),
           positive_elevation_m: gains.positiveElevationGain,
           negative_elevation_m: gains.negativeElevationGain
-        });
+        };
+        store.addTrace(newTrace);
+        store.selectedTraceId = newTrace.id;
+        store.isSidebarInfoOpen = true;
+        store.isSidebarOpen = true;
+
         emit('close');
       } catch (err) {
         alert("Erreur GPX");
@@ -89,7 +94,7 @@ const submitTrace = async () => {
     };
     reader.readAsText(selectedFile.value);
   } else {
-    // Altrimenti disegno manuale
+    // Sinon on passe en mode création manuelle (dessin sur la carte)
     store.triggerDraw(traceName.value);
     emit('close');
   }
@@ -97,7 +102,6 @@ const submitTrace = async () => {
 </script>
 
 <style scoped>
-/* --- Overlay e Contenitore Principale --- */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -124,14 +128,12 @@ const submitTrace = async () => {
   font-weight: 600;
 }
 
-/* --- Header e Testi --- */
 header h3 {
   color: #1976d2;
   font-size: 24px;
   margin: 10px 0 20px 0;
 }
 
-/* --- Form e Input Nome --- */
 .form-group {
   display: flex;
   align-items: center;
@@ -148,7 +150,6 @@ input {
   outline: none;
 }
 
-/* --- Zona Importazione GPX --- */
 .import-zone {
   margin-bottom: 20px;
   padding: 15px;
@@ -163,7 +164,6 @@ input {
   margin-bottom: 10px;
 }
 
-/* --- Logica Bottone GPX (Area cliccabile limitata) --- */
 .icon-container {
   display: flex;
   justify-content: center;
@@ -178,7 +178,6 @@ input {
   cursor: pointer;
   transition: transform 0.1s ease;
   color: #a0c4ff;
-  /* Colore base testo */
   width: fit-content;
   padding: 5px 12px;
   border-radius: 10px;
@@ -186,7 +185,6 @@ input {
 
 .gpx-svg {
   fill: #a0c4ff;
-  /* Colore base icona */
   transition: fill 0.2s ease;
 }
 
@@ -196,21 +194,16 @@ input {
   transition: color 0.2s ease;
 }
 
-/* --- Effetto Hover Combinato (Icona + Testo) --- */
 .drop-icon:hover {
   color: #1976d2;
-  /* Il testo diventa blu scuro */
 }
 
 .drop-icon:hover .gpx-svg {
   fill: #1976d2;
-  /* L'icona diventa blu scura */
 }
 
-/* --- Bottoni Azione e Footer --- */
 .popup-actions {
   display: flow-root;
-  /* Alternativa moderna al clearfix per il float */
   margin-top: 10px;
 }
 
@@ -230,7 +223,6 @@ input {
   background-color: #563cc7;
 }
 
-/* --- Pulsante Chiudi (X) --- */
 .close-btn {
   position: absolute;
   top: 10px;

@@ -33,10 +33,12 @@ export default {
       handler() { this.update3DBuildings(); },
       deep: true
     },
+
     'store.traces': {
       handler() { this.renderTraces(); },
       deep: true
     },
+
     'store.selectedTraceId': {
       handler(newId) {
         if (newId) {
@@ -44,6 +46,8 @@ export default {
         }
       }
     },
+
+    // Surveille le zoom de la caméra dans le store pour adapter la vue de la carte (ex. button + et -)
     'store.cameraPosition.height'(newHeight) {
       if (!this.viewer) return;
 
@@ -62,6 +66,10 @@ export default {
         }
       });
     },
+
+    'store.hoveredPointIndex'(mousePositionInProfile) {
+      this.updateCursor3D(mousePositionInProfile);
+    },
   },
   mounted() {
     this.setupCesium();
@@ -74,14 +82,14 @@ export default {
       this.viewer.entities.removeAll();
 
       this.store.traces.forEach(trace => {
-        // EPSG:2056 -> WGS84
+        // Conversion EPSG:2056 en WGS84
         const degreesCoords = [];
         trace.geometry.forEach(point => {
           const [lon, lat] = proj4("EPSG:2056", "EPSG:4326", [point[0], point[1]]);
           degreesCoords.push(lon, lat);
         });
 
-        // Creazione della linea proiettata sul terreno
+        // Creation de la ligne sur la carte (projetée au sol)
         this.viewer.entities.add({
           id: `trace-${trace.id}`,
           name: trace.name,
@@ -148,12 +156,12 @@ export default {
 
         this.viewer.scene.globe.depthTestAgainstTerrain = true;
 
-        // Limites de zoom et caméra
+        // Limites de zoom de la caméra
         this.viewer.scene.screenSpaceCameraController.minimumZoomDistance = 100;
         this.viewer.scene.screenSpaceCameraController.maximumZoomDistance = 400000;
         this.viewer.scene.globe.cartographicLimitRectangle = Rectangle.fromDegrees(...this.swissBounds);
 
-
+        // Positionnement initial de la caméra
         this.viewer.camera.setView({
           destination: Cartesian3.fromDegrees(lon, lat, pos.height),
           orientation: {
@@ -194,29 +202,29 @@ export default {
     updateLayerMap() {
       if (!this.viewer) return;
 
-      // Supprimer toutes les couches d'imagerie existantes
+      // Supprimer toutes les couches existantes (imageryLayers)
       this.viewer.imageryLayers.removeAll();
 
       // Layer Background
-      const coucheFondActive = this.store.backgroundLayers.find(c => c.active);
-      if (coucheFondActive) {
-        if (coucheFondActive.in3dModeTypeLayer === 'wms') {
-          this.addLayerWMS(coucheFondActive.wmts, 1.0);
+      const backgroundLayersActive = this.store.backgroundLayers.find(backgroundLayer => backgroundLayer.active);
+      if (backgroundLayersActive) {
+        if (backgroundLayersActive.in3dModeTypeLayer === 'wms') {
+          this.addLayerWMS(backgroundLayersActive.wmts, 1.0);
         } else {
-          this.addLayerWMTS(coucheFondActive.wmts, 1.0);
+          this.addLayerWMTS(backgroundLayersActive.wmts, 1.0);
         }
       }
 
       // Layer Extra
-      this.store.extraLayers.forEach(coucheExtra => {
-        if (coucheExtra.active) {
-          const opacite = coucheExtra.opacity !== undefined ? coucheExtra.opacity : 1.0;
-          this.addLayerWMS(coucheExtra.wmts, opacite);
+      this.store.extraLayers.forEach(extraLayer => {
+        if (extraLayer.active) {
+          const opacity = extraLayer.opacity !== undefined ? extraLayer.opacity : 1.0;
+          this.addLayerWMS(extraLayer.wmts, opacity);
         }
       });
     },
 
-    addLayerWMTS(identifiantLayer, valeurOpacite) {
+    addLayerWMTS(identifiantLayer, opacity) {
       const provider = new Cesium.UrlTemplateImageryProvider({
         url: `https://wmts.geo.admin.ch/1.0.0/${identifiantLayer}/default/current/3857/{z}/{x}/{y}.jpeg`,
         minimumLevel: 8,
@@ -224,10 +232,10 @@ export default {
         rectangle: Cesium.Rectangle.fromDegrees(...this.swissBounds),
       });
       const layer = this.viewer.imageryLayers.addImageryProvider(provider);
-      layer.alpha = valeurOpacite;
+      layer.alpha = opacity;
     },
 
-    addLayerWMS(identifiantLayer, valeurOpacite) {
+    addLayerWMS(identifiantLayer, opacity) {
       const provider = new Cesium.WebMapServiceImageryProvider({
         url: 'https://wms.geo.admin.ch/',
         layers: identifiantLayer,
@@ -238,14 +246,15 @@ export default {
         rectangle: Cesium.Rectangle.fromDegrees(...this.swissBounds),
       });
       const layer = this.viewer.imageryLayers.addImageryProvider(provider);
-      layer.alpha = valeurOpacite;
+      layer.alpha = opacity;
     },
+
     async update3DBuildings() {
       if (!this.viewer) return;
 
       // On cherche si l'ID 'batiments' est active ou non
-      const layerBatiment = this.store.extraLayers3D.find(l => l.id === 'batiments');
-      const isActive = layerBatiment ? layerBatiment.active : false;
+      const layerSwissBuildings = this.store.extraLayers3D.find(layer => layer.id === 'batiments');
+      const isActive = layerSwissBuildings ? layerSwissBuildings.active : false;
 
       // Si c'est actif mais le tileset n'existe pas encore:
       if (isActive && !this.swissBuildings) {
@@ -263,8 +272,62 @@ export default {
       if (this.swissBuildings) {
         this.swissBuildings.show = isActive;
       }
+    },
+
+    // Permet de voir un point sur la carte si on a la souris sur le profil
+    updateCursor3D(mousePositionInProfile) {
+      if (!this.viewer) return;
+
+      const cursorId = 'cursor-3d';
+      const existingCursor = this.viewer.entities.getById(cursorId);
+
+      if (mousePositionInProfile === null || mousePositionInProfile === undefined) {
+        if (existingCursor) this.viewer.entities.remove(existingCursor);
+        return;
+      }
+
+      const currentTrace = this.store.selectedTrace;
+      if (!currentTrace || !currentTrace.geometry) return;
+
+      const totalGraphPoints = this.store.currentProfileLength || currentTrace.geometry.length;
+      const ratio = mousePositionInProfile / (totalGraphPoints - 1);
+
+      const segmentIndex = Math.floor(ratio * (currentTrace.geometry.length - 1));
+      const p1 = currentTrace.geometry[segmentIndex];
+      const p2 = currentTrace.geometry[Math.min(segmentIndex + 1, currentTrace.geometry.length - 1)];
+
+      const t = (ratio * (currentTrace.geometry.length - 1)) - segmentIndex;
+      const x = p1[0] + (p2[0] - p1[0]) * t;
+      const y = p1[1] + (p2[1] - p1[1]) * t;
+
+      const [lon, lat] = proj4("EPSG:2056", "EPSG:4326", [x, y]);
+
+      const coneHeight = 40.0;
+      const coneRadius = 15.0;
+
+      const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+
+      if (existingCursor) {
+        existingCursor.position = position;
+      } else {
+        this.viewer.entities.add({
+          id: cursorId,
+          position: position,
+          cylinder: {
+            length: coneHeight,
+            topRadius: coneRadius,
+            bottomRadius: 0.0,
+            material: Cesium.Color.RED.withAlpha(0.9),
+            outline: false,
+            numberOfVerticalLines: 0,
+            slices: 32,
+            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+          }
+        });
+      }
     }
   },
+  // Libère les ressources et la mémoire du moteur 3D avant de détruire le composant.
   beforeUnmount() {
     if (this.viewer) this.viewer.destroy();
   }
