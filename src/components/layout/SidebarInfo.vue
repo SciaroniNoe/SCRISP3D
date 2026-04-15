@@ -82,15 +82,18 @@ watch(
       chartInstance.destroy()
     }
 
-
     const geometry = trace.geometry
     const zValues = await swisstopoService.getLineProfile(geometry)
+
+    store.currentProfileLength = zValues.length;
 
     const totalDistanceKm = trace.length_m / 1000;
     const totalPoints = zValues.length;
 
-    const points = zValues.map((z, i) => ({ x: (i * totalDistanceKm) / (totalPoints - 1), y: z }))
-    //console.log("zVALUE",zValues)
+    const points = zValues.map((z, i) => ({
+      x: (i * totalDistanceKm) / (totalPoints - 1), //la distance progressive du point actuel
+      y: z // l'altitude du point actuel
+    }));
 
     chartInstance = new Chart(altitudeCanvas.value, {
       type: 'line',
@@ -103,12 +106,18 @@ watch(
             tension: 0.2,
             pointRadius: 1,          // taille normale
             pointHoverRadius: 7,     // au survol
+            fill: true,
+            backgroundColor: 'rgba(255, 0, 0, 0.2)',
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
         scales: {
           x: {
             type: 'linear',
@@ -141,16 +150,20 @@ watch(
             }
           }
         },
+        // Gère l'interaction entre le graphique et la carte au survol de la souris
         onHover: (event, elements) => {
-          if (elements.length > 0) {
-            const pointIndex = elements[0].index
-            store.hoveredPointIndex = pointIndex
+          if (elements && elements.length > 0) {
+            store.hoveredPointIndex = elements[0].index;
           } else {
-            store.hoveredPointIndex = null
+            // SE IL MOUSE NON È SU UN PUNTO, RESETTA!
+            store.hoveredPointIndex = null;
           }
-        }
+        },
       }
-    })
+    });
+    altitudeCanvas.value.addEventListener('mouseleave', () => {
+      store.hoveredPointIndex = null;
+    });
   },
   { immediate: true }
 )

@@ -22,6 +22,7 @@ import { usestore } from '@/stores/store';
 import { geoUtils } from '@/services/geoUtils';
 import { swisstopoService } from '@/services/swisstopo';
 import InfoBoxEndTrace from '@/components/ui/InfoBoxEndTrace.vue';
+import Point from 'ol/geom/Point.js';
 
 // Imports pour le dessin
 import VectorSource from 'ol/source/Vector.js';
@@ -41,12 +42,14 @@ export default {
             store: usestore(),
             instanceCarte: null,
             donneesCapabilities: null,
-            sourceVecteur: null, // Source pour les tracés
+            sourceVecteur: null,
             typeTrace: 'LineString',
             interactionDraw: null,
             interactionSnap: null,
             interactionModify: null,
-            isInternalUpdate: false
+            isInternalUpdate: false,
+            sourceCurseur: null,
+            featureCurseur: null,
         }
     },
     mounted() {
@@ -89,6 +92,9 @@ export default {
             },
             deep: true
         },
+        'store.hoveredPointIndex'(newIndex) {
+            this.updateCursorPosition(newIndex);
+        }
     },
     methods: {
         initialiserCarte() {
@@ -118,6 +124,18 @@ export default {
                 },
             });
 
+            this.sourceCurseur = new VectorSource();
+            const coucheCurseur = new VectorLayer({
+                source: this.sourceCurseur,
+                style: {
+                    'circle-radius': 7,
+                    'circle-fill-color': '#ff0000', // Rosso
+                    'circle-stroke-color': '#ffffff', // Bordo bianco per visibilità
+                    'circle-stroke-width': 2,
+                },
+                zIndex: 999 // Assicuriamoci che sia sopra a tutto
+            });
+
             fetch('https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml?lang=fr')
                 .then(reponse => reponse.text())
                 .then(texteXml => {
@@ -125,7 +143,7 @@ export default {
 
                     this.instanceCarte = new Map({
                         target: this.$refs.map2D,
-                        layers: [coucheVecteur],
+                        layers: [coucheVecteur, coucheCurseur],
                         view: new View({
                             projection: projectionSuisse,
                             extent: mapExtent,
@@ -288,6 +306,10 @@ export default {
         updateLayerMap() {
             if (!this.instanceCarte || !this.donneesCapabilities) return;
 
+            if (this.sourceCurseur) {
+                this.sourceCurseur.clear();
+            }
+            
             // On ne vide pas tout, sinon on perd la couche de dessin
             // On filtre pour ne garder que la couche vectorielle de dessin
             const layers = this.instanceCarte.getLayers().getArray();
@@ -363,6 +385,54 @@ export default {
                 feature.setId(trace.id);
                 this.sourceVecteur.addFeature(feature);
             });
+        },
+        updateCursorPosition(index) {
+            // 1. PULIZIA SEMPRE E COMUNQUE
+            // Questo rimuove il puntino rosso dalla mappa
+            if (this.sourceCurseur) {
+                this.sourceCurseur.clear();
+            }
+
+            // 2. SE L'INDICE È NULL, CI FERMIAMO QUI
+            // (Il puntino è già stato rimosso sopra, quindi la mappa è pulita)
+            if (index === null || index === undefined) {
+                return;
+            }
+
+            // 3. RECUPERO TRACCIA SELEZIONATA
+            // Usiamo una costante locale per sicurezza
+            const currentTrace = this.store.selectedTrace;
+
+            if (!currentTrace || !currentTrace.geometry || currentTrace.geometry.length < 2) {
+                return;
+            }
+
+            try {
+                // 4. CREAZIONE GEOMETRIA PER INTERPOLAZIONE
+                const line = new LineString(currentTrace.geometry);
+
+                // 5. CALCOLO PERCENTUALE
+                // Usiamo la lunghezza del profilo salvata nello store (quella di Swisstopo)
+                // Se non esiste ancora, usiamo il numero di punti della geometria come fallback
+                const totalGraphPoints = this.store.currentProfileLength || currentTrace.geometry.length;
+
+                // Evitiamo divisioni per zero
+                if (totalGraphPoints <= 1) return;
+
+                const percentage = index / (totalGraphPoints - 1);
+
+                // 6. OTTENIAMO LE COORDINATE GPS
+                const coordinate = line.getCoordinateAt(percentage);
+
+                if (coordinate) {
+                    const feature = new Feature({
+                        geometry: new Point(coordinate)
+                    });
+                    this.sourceCurseur.addFeature(feature);
+                }
+            } catch (error) {
+                console.error("Errore nel calcolo della posizione del cursore:", error);
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ export default {
       handler() { this.updateLayerMap(); },
       deep: true
     },
-    'store.extraLayers_3D': {
+    'store.extraLayers3D': {
       handler() { this.update3DBuildings(); },
       deep: true
     },
@@ -244,7 +244,7 @@ export default {
       if (!this.viewer) return;
 
       // On cherche si l'ID 'batiments' est active ou non
-      const layerBatiment = this.store.extraLayers_3D.find(l => l.id === 'batiments');
+      const layerBatiment = this.store.extraLayers3D.find(l => l.id === 'batiments');
       const isActive = layerBatiment ? layerBatiment.active : false;
 
       // Si c'est actif mais le tileset n'existe pas encore:

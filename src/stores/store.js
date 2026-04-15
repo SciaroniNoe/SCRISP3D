@@ -1,4 +1,3 @@
-import { swisstopoService } from '@/services/swisstopo'
 import { defineStore } from 'pinia'
 
 export const usestore = defineStore('trace', {
@@ -7,7 +6,7 @@ export const usestore = defineStore('trace', {
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
-      // Se esistono li carichiamo sennò usiamo l'array con i test
+      // On rajoute une trace de test pour la demo (si on l'enleve pas de probleme, mais la liste sera vide au premier lancement)
       traces: savedTraces ? JSON.parse(savedTraces) : [
         {
           id: 1,
@@ -35,6 +34,8 @@ export const usestore = defineStore('trace', {
 
       is3dMode: false,
 
+      currentProfileLength: 0,
+
       cameraPosition: {
         center: [2677489, 1184863],
         zoom: 2,      // OpenLayers
@@ -54,7 +55,7 @@ export const usestore = defineStore('trace', {
         { id: 'layerRandonnee', label: 'Chemins de randonnée', wmts: 'ch.swisstopo.swisstlm3d-wanderwege', active: false, opacity: 1.0 }
       ],
 
-      extraLayers_3D: [
+      extraLayers3D: [
         { id: 'batiments', label: 'Bâtiments 3D', active: false }
       ]
 
@@ -62,61 +63,57 @@ export const usestore = defineStore('trace', {
   },
 
   getters: {
-    selectedBackground: (state) => state.backgroundLayers.find(l => l.active),
-    selectedTrace: (state) => state.traces.find(t => t.id === state.selectedTraceId)
+    // Récupère la couche de fond actuellement activée
+    selectedBackground: (state) => state.backgroundLayers.find(layer => layer.active),
+
+    // Trouve l'objet complet de la trace sélectionnée via son ID
+    selectedTrace: (state) => state.traces.find(trace => trace.id === state.selectedTraceId)
   },
 
   actions: {
     triggerDraw(name) {
       this.tempTraceName = name;
       this.isDrawingActive = true;
-      this.drawingTrigger++; // Incrémenter force le "watch" à s'activer
+      this.drawingTrigger++; // Incrémenter (fais +1 a chaque fois) force le "watch" à s'activer
       this.isCreatePopupOpen = false;
     },
 
     addTrace(newTrace) {
       const traceToAdd = {
-        id: Date.now(),
-        ...newTrace
+        id: Date.now(), // Utilise le timestamp actuel comme identifiant unique
+        ...newTrace //décomposition (...) pour copier toutes les propriétés de l'objet newTrace dans le nouvel objet traceToAdd
       }
-
       this.traces.push(traceToAdd)
       this.saveToBrowser()
     },
 
-
     updateTraceData(id, updatedFields) {
       const index = this.traces.findIndex(trace => trace.id === id);
-
       if (index !== -1) {
-
         this.traces[index] = {
           ...this.traces[index],
           ...updatedFields
         };
-
         this.saveToBrowser();
-
-        //console.log(`Store: Trace ${id} updated and saved to localStorage.`);
       } else {
         console.warn(`Store: Trace with id ${id} not found.`);
       }
     },
 
-    // Funzione per scrivere nel localStorage
+    // Enregistre la liste des traces dans le stockage local du navigateur
     saveToBrowser() {
       localStorage.setItem('my_traces', JSON.stringify(this.traces))
     },
 
-    // Se vuoi cancellare
     deleteTrace(id) {
       this.isSidebarInfoOpen = false
-      this.traces = this.traces.filter(t => t.id !== id)
+      this.traces = this.traces.filter(trace => trace.id !== id)
       this.saveToBrowser()
     },
 
+    // Gère la sélection d'une trace et l'affichage de ses informations détaillées
     selectTrace(id) {
-      // Se clicco lo stesso ID, lo resetto un istante per forzare il watcher 
+      // Si l'ID est identique, on réinitialise brièvement pour forcer la mise à jour de la carte 
       if (this.selectedTraceId === id) {
         this.selectedTraceId = null;
         setTimeout(() => {
@@ -128,13 +125,14 @@ export const usestore = defineStore('trace', {
       this.isSidebarInfoOpen = true;
     },
 
-    // Logique pour s'assurer qu'un seul arrière-plan est actif
+    // Désactive tous les fonds de carte sauf celui sélectionné (sélection exclusive)
     setBackground(layerId) {
       this.backgroundLayers.forEach(layer => {
         layer.active = (layer.id === layerId);
       });
     },
 
+    // Gère l'ouverture et la fermeture des Sidebar
     handleBurgerClick() {
       if (!this.isSidebarOpen) {
         this.isSidebarOpen = true
@@ -147,6 +145,7 @@ export const usestore = defineStore('trace', {
       }
     },
 
+    // Met à jour les coordonnées ou l'orientation de la caméra
     updateCamera(newValues) {
       this.cameraPosition = { ...this.cameraPosition, ...newValues };
     },

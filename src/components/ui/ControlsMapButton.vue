@@ -17,7 +17,7 @@
                 <label class="form-check-label" :for="layer.id">{{ layer.label }}</label>
             </div>
             <template v-if="store.is3dMode">
-                <div class="form-check form-switch" v-for="layer in store.extraLayers_3D" :key="layer.id">
+                <div class="form-check form-switch" v-for="layer in store.extraLayers3D" :key="layer.id">
                     <input class="form-check-input" type="checkbox" :id="layer.id" v-model="layer.active">
                     <label class="form-check-label" :for="layer.id">{{ layer.label }}</label>
                 </div>

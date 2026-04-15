@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+// Importation des composants
 import { usestore } from '@/stores/store'
 import SidebarInfo from './components/layout/SidebarInfo.vue'
 import SidebarList from './components/layout/SidebarList.vue'
@@ -27,8 +28,6 @@ import CreateTraceButton from './components/ui/CreateTraceButton.vue';
 import CreateTracePopup from './components/ui/CreateTracePopup.vue';
 
 const store = usestore()
-
-
 </script>
 
 <style scoped>
@@ -66,17 +65,17 @@ const store = usestore()
 }
 
 /* Position de base du bouton (quand la barre est fermée) */
-:deep(.create-trace-button-class) { /* Remplace par la classe réelle à l'intérieur de ton composant */
+:deep(.create-trace-button-class) {
   position: absolute;
-  left: 20px; /* Position initiale */
+  left: 20px;
   bottom: 20px;
-  transition: transform 0.3s ease-in-out; /* Même durée que la sidebar */
+  transition: transform 0.3s ease-in-out;
   z-index: 500;
 }
 
-/* Position quand la barre est ouverte */
+/* Décalage du bouton vers la droite quand sidebar est ouverte */
 .shifted {
-  transform: translateX(400px); /* 300px correspond à la largeur de ta sidebar */
+  transform: translateX(400px);
 }
 
 </style>
