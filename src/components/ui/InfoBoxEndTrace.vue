@@ -3,10 +3,12 @@
     <div class="info-box-content">
       <h3 class="info-title">Instructions</h3>
       <ul class="info-list">
+        <li class="sub-title">Pour créer un tracé</li>
         <li><strong>Clic gauche :</strong> Ajouter un point</li>
         <li><strong>Double-clic :</strong> Terminer le tracé</li>
         <li><strong>Delete :</strong> Annuler le dernier point</li>
         <hr class="separator" />
+        <li class="sub-title mt-10">Pour modifier un tracé</li>
         <li><strong>Glisser un point :</strong> Modifier la position</li>
         <li><strong>Glisser le point milieu :</strong> Ajouter un nouveau point</li>
         <li><strong>Alt + Clic :</strong> Supprimer un point</li>
@@ -50,8 +52,16 @@
 }
 
 .separator {
-  margin: 8px 0;
+  margin: 4px 0;
   border: 0;
   border-top: 0px solid #ddd;
 }
+
+.sub-title {
+  font-size: 14px;
+  color: #1976d2;
+  font-weight: 600;
+}
+
 </style>
+
