@@ -8,7 +8,7 @@ import "cesium/Source/Widgets/widgets.css";
 import proj4 from 'proj4';
 import { usestore } from '@/stores/store';
 
-window.CESIUM_BASE_URL = '/node_modules/cesium/Build/Cesium/';
+//window.CESIUM_BASE_URL = '/node_modules/cesium/Build/Cesium/';
 
 export default {
   name: 'map3D',

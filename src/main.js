@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import './assets/style.css'
 
+window.CESIUM_BASE_URL = '/cesium/';
+
 // On crée l'application Vue
 const app = createApp(App)
 
