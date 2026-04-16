@@ -302,8 +302,12 @@ export default {
 
       const [lon, lat] = proj4("EPSG:2056", "EPSG:4326", [x, y]);
 
-      const coneHeight = 40.0;
-      const coneRadius = 15.0;
+      //const coneHeight = 40.0;
+      //const coneRadius = 15.0;
+      const cameraHeight = this.viewer.camera.positionCartographic.height;
+      let dynamicHeight = cameraHeight * 0.04;
+      dynamicHeight = Math.max(10, Math.min(dynamicHeight, 500));
+      const coneRadius = dynamicHeight * 0.4;
 
       const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
 
@@ -314,7 +318,7 @@ export default {
           id: cursorId,
           position: position,
           cylinder: {
-            length: coneHeight,
+            length: dynamicHeight,
             topRadius: coneRadius,
             bottomRadius: 0.0,
             material: Cesium.Color.RED.withAlpha(0.9),
