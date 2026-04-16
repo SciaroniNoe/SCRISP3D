@@ -6,20 +6,7 @@ export const usestore = defineStore('trace', {
     const savedTraces = localStorage.getItem('my_traces')
 
     return {
-      // On rajoute une trace de test pour la demo (si on l'enleve pas de probleme, mais la liste sera vide au premier lancement)
-      traces: savedTraces ? JSON.parse(savedTraces) : [
-        {
-          id: 1,
-          name: 'Trace TEST',
-          geometry: [[2562260.410, 1206282.600], [2562117.386, 1208180.511], [2563120.505, 1210183.038]],
-          h_start_m: 639.3,
-          h_end_m: 833.9,
-          length_m: 4140,
-          elevation_difference_m: 194.6,
-          positive_elevation_m: 511.8,
-          negative_elevation_m: 317.2
-        }
-      ],
+      traces: savedTraces ? JSON.parse(savedTraces) : [],
 
       selectedTraceId: null,
       hoveredPointIndex: null,

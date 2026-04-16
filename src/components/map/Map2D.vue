@@ -56,7 +56,7 @@ export default {
         }
     },
     mounted() {
-        this.initialiserCarte();
+        this.initialisationMap();
     },
     watch: {
         // Surveille le trigger de dessin dans le store pour activer le mode dessin
@@ -106,7 +106,7 @@ export default {
         }
     },
     methods: {
-        initialiserCarte() {
+        initialisationMap() {
             const parser = new WMTSCapabilities();
 
             proj4.defs(
@@ -420,7 +420,7 @@ export default {
 
                 const percentage = mousePositionInProfile / (totalGraphPoints - 1);
 
-                // on obtient les coo sur le trace en function du purcentage
+                // On obtient les coo sur le trace en function du purcentage
                 const coordinate = line.getCoordinateAt(percentage);
 
                 if (coordinate) {
@@ -455,16 +455,6 @@ export default {
     position: relative;
 }
 
-.toolbar {
-    position: absolute;
-    top: 10px;
-    left: 50px;
-    z-index: 10;
-    background: white;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
 
 /* Pour le popup aide creation trace */
 .fade-enter-active,

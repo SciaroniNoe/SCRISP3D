@@ -128,7 +128,7 @@ export default {
 
     async setupCesium() {
       const {
-        Viewer, CesiumTerrainProvider, Cesium3DTileset,
+        Viewer, CesiumTerrainProvider,
         Cartesian3, Math: CesiumMath, Rectangle
       } = Cesium;
 

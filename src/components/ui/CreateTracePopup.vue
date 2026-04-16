@@ -89,6 +89,7 @@ const submitTrace = async () => {
 
         emit('close');
       } catch (err) {
+        console.error(err);
         alert("Erreur GPX");
       }
     };

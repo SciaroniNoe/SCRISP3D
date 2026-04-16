@@ -264,10 +264,6 @@ h2 {
   background-color: #c62828;
 }
 
-.edit-btn:hover {
-  background-color: #1259a7;
-}
-
 .empty-message {
   text-align: center;
   color: #555;
